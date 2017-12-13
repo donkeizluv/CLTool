@@ -1,0 +1,2 @@
+﻿-implement VueEx
+-inject VieWModel on page load DONE

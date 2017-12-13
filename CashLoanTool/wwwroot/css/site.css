@@ -1,0 +1,36 @@
+﻿body {
+    padding-top: 40px;
+}
+span[disabled] {
+    pointer-events: none;
+}
+hr {
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+.left-buffer{
+    margin-left: 60px;
+}
+.bottom-buffer {
+    margin-bottom: 20px;
+}
+.right-buffer {
+    margin-right: 20px;
+}
+.top-buffer {
+    margin-top: 20px;
+}
+.container-table {
+    display: table;
+}
+.vertical-center-row {
+    display: table-cell;
+    vertical-align: middle;
+}
+.col-centered {
+    float: none;
+    margin: 0 auto;
+}
+
+
+

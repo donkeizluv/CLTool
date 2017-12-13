@@ -1,0 +1,95 @@
+﻿select
+tawd.szlname || ' ' || tawd.szmname || ' ' || tawd.szfname "FullName"
+,tawd.dtdateofbirth "DOB"
+,'' "POB"
+,tawd.szssn "IdentityCard"
+,nvl(tawd.sznationality,'VIETNAM') "Nationality"
+,tawd.dtregistration "IssueDate"
+,'' "Issuer"
+,tawd.csex "Gender"
+,rs_addr.address "HomeAddress"
+,(      SELECT OAD.SZADDRESS1 || ',' ||
+               NVL2(TRIM(OAD.SZLANDMARK), TRIM(OAD.SZLANDMARK) || ',', '') ||
+               NVL2(TRIM(OAD.SZSHORTADDRESS2),
+                    TRIM(OAD.SZSHORTADDRESS2) || ',',
+                    '') ||
+               NVL2(NVL((SELECT MD.SZDESC
+                          FROM MST_DISTRICT MD
+                         WHERE MD.SZCITYCODE = OAD.SZCITYCODE
+                           AND MD.SZDISTRICTCODE = OAD.SZDISTRICTCODE),
+                        OAD.SZSHORTADDRESS1),
+                    NVL((SELECT MD.SZDESC
+                          FROM MST_DISTRICT MD
+                         WHERE MD.SZCITYCODE = OAD.SZCITYCODE
+                           AND MD.SZDISTRICTCODE = OAD.SZDISTRICTCODE),
+                        OAD.SZSHORTADDRESS1) || ',',
+                    '') ||
+               (SELECT MC.SZDESC
+                  FROM MST_CITY MC
+                 WHERE MC.SZCITYCODE = OAD.SZCITYCODE
+                   AND MC.SZSTATECODE = OAD.SZSTATECODE) ADDRESS
+          FROM --tr_applicationworkdetails tawd,
+               otheraddressdetails oad,
+               mst_city cit,
+               mst_state stat
+         WHERE 1=1
+          -- AND TAWD.SZPARTYTYPE  = 'BORROWER'
+           and oad.iaddressseq   = TAWD.Iaddressseq
+           AND OAD.SZADDRESSTYPE = 'OF'
+           and oad.isrlno = 1
+           and oad.szcitycode = cit.szcitycode(+)
+           and oad.szstatecode = cit.szstatecode(+)
+           and oad.szstatecode = stat.szstatecode(+)
+           and oad.szcountry = stat.szcountrycode(+)
+       ) as "ContactAddress"
+,rs_addr.mobile "Phone"       
+,gen.szdesc "Profession"
+,tawd.cmstatus "MartialStatus"
+,tawd.szeducationlevel "EducationLvl"
+,tawd.szeducation "GraduateNPostGraduate"
+,nvl(tawd.szemployername,'') "CompanyName"
+,nvl(tawd.szemployeraddress,'') "CompanyAddress"
+FROM       
+  tr_applicationworkdetails tawd
+  ,(SELECT OAD.SZADDRESS1 || ',' ||
+               NVL2(TRIM(OAD.SZLANDMARK), TRIM(OAD.SZLANDMARK) || ',', '') ||
+               NVL2(TRIM(OAD.SZSHORTADDRESS2),
+                    TRIM(OAD.SZSHORTADDRESS2) || ',',
+                    '') ||
+               NVL2(NVL((SELECT MD.SZDESC
+                          FROM MST_DISTRICT MD
+                         WHERE MD.SZCITYCODE = OAD.SZCITYCODE
+                           AND MD.SZDISTRICTCODE = OAD.SZDISTRICTCODE),
+                        OAD.SZSHORTADDRESS1),
+                    NVL((SELECT MD.SZDESC
+                          FROM MST_DISTRICT MD
+                         WHERE MD.SZCITYCODE = OAD.SZCITYCODE
+                           AND MD.SZDISTRICTCODE = OAD.SZDISTRICTCODE),
+                        OAD.SZSHORTADDRESS1) || ',',
+                    '') ||
+               (SELECT MC.SZDESC
+                  FROM MST_CITY MC
+                 WHERE MC.SZCITYCODE = OAD.SZCITYCODE
+                   AND MC.SZSTATECODE = OAD.SZSTATECODE) ADDRESS
+                   ,oad.iaddressseq
+                   ,oad.szmobil mobile
+          FROM 
+               otheraddressdetails oad,
+               mst_city cit,
+               mst_state stat
+         WHERE 1=1
+           AND OAD.SZADDRESSTYPE = 'RS'
+           and oad.isrlno = 1
+           and oad.szcitycode = cit.szcitycode(+)
+           and oad.szstatecode = cit.szstatecode(+)
+           and oad.szstatecode = stat.szstatecode(+)
+           and oad.szcountry = stat.szcountrycode(+)
+       ) rs_addr
+       ,induslosr.GENERALCONDITIONMASTER gen
+  where 1=1
+  AND tawd.szpartytype = 'BORROWER' 
+  and gen.SZSYSTEMNAME = 'LOS'
+  AND gen.SZCONDITION = 'PROFESSION'
+  and gen.szvalue = tawd.szprofession
+  and rs_addr.iaddressseq   = TAWD.Iaddressseq
+  and tawd.szloanapplnno = '{param}'
