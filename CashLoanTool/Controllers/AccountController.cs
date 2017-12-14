@@ -18,14 +18,14 @@ namespace CashLoanTool.Controllers
     {
         private const string LoginStatusKey = "LoginStatus";
         //maybe private methods are more suitable since controllers dont seem to get call anywhere in code :/
-        public string Issuer
+        internal string Issuer
         {
             get
             {
                 return _config.GetSection("Authentication").GetValue<string>("Issuer");
             }
         }
-        public bool NoPwdCheck
+        internal bool NoPwdCheck
         {
             get
             {
@@ -33,7 +33,7 @@ namespace CashLoanTool.Controllers
             }
         }
 
-        public string Domain
+        internal string Domain
         {
             get
             {

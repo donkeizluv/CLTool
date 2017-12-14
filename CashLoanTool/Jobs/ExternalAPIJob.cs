@@ -20,7 +20,7 @@ namespace CashLoanTool.Jobs
         //Unhandle exception wont crash app
         public void Execute(IJobExecutionContext context)
         {
-            logger.Info("Execute job....");
+            //logger.Info("Execute job....");
             var schedulerContext = context.Scheduler.Context;
             var conStr = (string)schedulerContext.Get(EnviromentHelper.ConnectionStringKey);
             if (string.IsNullOrEmpty(conStr))
@@ -55,10 +55,14 @@ namespace CashLoanTool.Jobs
                         request.RequestSendTime = DateTime.Now;
                         ////Must have customer info at this point
                         //var info = dbContext.CustomerInfo.Where(i => i.RequestId == request.RequestId).Single();
-                        var hdssRq = ToHDSSRequest(request, request.CustomerInfo.Single());
+                        var hdssRq = ToHDSSRequest(request, request.CustomerInfo.Single(), out var guid);
+                        //If network fail, rq wont get update with response & guid
                         var result = HDB.Program.PostToHDBank(url, hdssRq);
                         var response = StringToResponse(result);
-                        //do smt with response code
+
+                        //Update GUID
+                        request.Guid = guid;
+                        //Add response to this request
                         request.Response.Add(response);
                     }
                     dbContext.SaveChanges();
@@ -88,14 +92,15 @@ namespace CashLoanTool.Jobs
                 ReceiveTime = DateTime.Now
             };
         }
-        public static HDSSRequest ToHDSSRequest(Request rq, CustomerInfo customerInfo)
+        public static HDSSRequest ToHDSSRequest(Request rq, CustomerInfo customerInfo, out string guid)
         {
+            guid = Guid.NewGuid().ToString();
             var hdssRq = new HDSSRequest()
             {
                 //TODO:
                 //Home or Contact address is must?
                 //interchangeable?
-                requestId = Guid.NewGuid().ToString(), //Hardcoded as HDB requested TODO: store this
+                requestId = guid, //Hardcoded as HDB requested TODO: store this
                 requestTime = DateTime.Now.ToString(RequestTimeFormat), //Hardcoded as HDB requested
                 requestType = rq.RequestType,
                 identityCard = customerInfo.IdentityCard,

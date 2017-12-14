@@ -12,6 +12,7 @@ namespace CashLoanTool.EntityModels
         }
 
         public int RequestId { get; set; }
+        public string Guid { get; set; }
         public DateTime RequestCreateTime { get; set; }
         public DateTime? RequestSendTime { get; set; }
         public string RequestType { get; set; }

@@ -43,7 +43,7 @@ namespace CashLoanTool.EntityModels
 
                 entity.Property(e => e.CompanyAddress).HasMaxLength(400);
 
-                entity.Property(e => e.CompanyName).HasMaxLength(50);
+                entity.Property(e => e.CompanyName).HasMaxLength(200);
 
                 entity.Property(e => e.ContactAddress).HasMaxLength(400);
 
@@ -85,9 +85,9 @@ namespace CashLoanTool.EntityModels
                     .HasColumnName("POB")
                     .HasMaxLength(50);
 
-                entity.Property(e => e.Position).HasMaxLength(50);
+                entity.Property(e => e.Position).HasMaxLength(150);
 
-                entity.Property(e => e.Professional).HasMaxLength(50);
+                entity.Property(e => e.Professional).HasMaxLength(150);
 
                 entity.HasOne(d => d.Request)
                     .WithMany(p => p.CustomerInfo)
@@ -98,6 +98,10 @@ namespace CashLoanTool.EntityModels
 
             modelBuilder.Entity<Request>(entity =>
             {
+                entity.Property(e => e.Guid)
+                    .HasColumnName("GUID")
+                    .HasMaxLength(36);
+
                 entity.Property(e => e.LoanNo)
                     .IsRequired()
                     .HasMaxLength(20);
