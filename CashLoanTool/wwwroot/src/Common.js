@@ -15,11 +15,12 @@
     },
     langCode: 'vn',
     errorMessages: {
-        'en': {
-            '404': 'Not Found'
-        },
         'vn': {
-            '404': 'Không tìm thấy'
+            '404': '404 Không tìm thấy',
+            '401': '401 Không được phép',
+            '403': '403 Không được phép',
+            '500': '500 Lỗi hệ thống',
+            '504': '504 Hết thời gian chờ'
         }
     },
     errorCodeTranslater: function(code) {

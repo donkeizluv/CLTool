@@ -25,7 +25,7 @@ namespace CashLoanTool.Controllers
 
         [HttpGet]
         [Authorize]
-        public IActionResult Index([FromQuery] int page = 1, [FromQuery] string by = "", [FromQuery] bool asc = true)
+        public IActionResult Index([FromQuery] int page = 1, [FromQuery] string by = "AcctNo", [FromQuery] bool asc = true)
         {
             //string role = string.Empty;
             //var claim = HttpContext.User.FindFirst(ClaimTypes.Role);

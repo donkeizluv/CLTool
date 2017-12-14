@@ -34,17 +34,19 @@
                     <td><h5>CMND</h5></td>
                     <td><h5>SĐT</h5></td>
                     <td><h5>Số HĐ</h5></td>
+                    <td><button class="btn btn-link" v-on:click="OrderByClicked('RequestCreateTime')"><span v-html="DisplayOrderButtonStates('RequestCreateTime')"></span>Ngày tạo</button></td>
                     <td><h5>In</h5></td>
                 </tr>
             </thead>
             <tbody>
                 <tr v-for="request in Requests">
                     <td class="table-td" nowrap><span class="table-cell-content">{{request.RequestId}}</span></td>
-                    <td class="table-td" nowrap><span class="table-cell-content">{{request.Response[0] != undefined? request.Response[0].AcctNo : ''}}</span></td>
+                    <td class="table-td" nowrap><span class="table-cell-content">{{request.AcctNo}}</span></td>
                     <td class="table-td" nowrap><span class="table-cell-content">{{request.IdentityCardName}}</span></td>
                     <td class="table-td" nowrap><span class="table-cell-content">{{request.IdentityCard}}</span></td>
                     <td class="table-td" nowrap><span class="table-cell-content">{{request.Phone}}</span></td>
                     <td class="table-td" nowrap><span class="table-cell-content">{{request.LoanNo}}</span></td>
+                    <td class="table-td" nowrap><span class="table-cell-content">{{request.RequestCreateTimeString}}</span></td>
                     <td class="table-td" nowrap>
                         <button v-show="request.HasValidAcctNo" v-on:click="GetDocument(request)" class="btn btn-link">
                             <span class="fa fa-print onepointfive-em"></span>
@@ -68,7 +70,7 @@
             </div>
         </div>
         <div class="row">
-            <div><span class="center-block">Total Records: {{TotalRows}}</span></div>
+            <div><span class="center-block">Tổng số: {{TotalRows}}</span></div>
         </div>
     </div>
 </template>
@@ -246,9 +248,11 @@
             },
             //Check contract click handler
             CheckContractClicked: function () {
+                var format = /[ !@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/;
+                
                 var that = this;
                 //check string valid
-                if (!that.$data.ContractId) {
+                if (!that.$data.ContractId || format.test(that.$data.ContractId)) {
                     that.$data.StatusMessage = "Số hợp đồng không hợp lệ";
                     that.$data.StatusTextClass = "status-danger";
                     return;

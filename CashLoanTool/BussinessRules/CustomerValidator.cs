@@ -11,7 +11,6 @@ namespace CashLoanTool.BussinessRules
         public static bool Check(CustomerInfo customer, out string message)
         {
             message = string.Empty;
-
             if(customer == null)
             {
                 message = "Không tìm thấy khách hàng.";

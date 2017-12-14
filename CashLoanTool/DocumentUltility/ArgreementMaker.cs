@@ -1,10 +1,7 @@
 ﻿using CashLoanTool.EntityModels;
-using CashLoanTool.Helper;
 using GemBox.Document;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace CashLoanTool.DocumentUltility
 {
@@ -13,8 +10,6 @@ namespace CashLoanTool.DocumentUltility
         public const string DateFormat = "dd/MM/yyyy";
         public static DocumentModel FillTemplate(CustomerInfo customer, string acctNo, string templatePath)
         {
-            var response = customer.Request.Response.First();
-
             var document = DocumentModel.Load(templatePath);
             // Find and replace text.
             document.Content.Replace("{name}", customer.FullName);

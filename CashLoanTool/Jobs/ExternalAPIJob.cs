@@ -1,16 +1,13 @@
 ﻿using Quartz;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using HDB;
 using CashLoanTool.EntityModels;
 using CashLoanTool.Helper;
 using NLog;
-using System.Threading;
 using Newtonsoft.Json;
-using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
+using Microsoft.EntityFrameworkCore;
 
 namespace CashLoanTool.Jobs
 {
@@ -35,26 +32,30 @@ namespace CashLoanTool.Jobs
             {
                 using (var dbContext = new CLToolContext(conStr))
                 {
-
+                    //Will result in all request, dk why :/
+                    //var newRequests3 = dbContext.Request
+                    //      .Where(r => !r.HasResponse);
+                    //Works
+                    //var newRequests2 = dbContext.Request
+                    //      .Where(w => !dbContext.Response.Select(s => s.RequestId).Contains(w.RequestId));
+                    //Works
                     var newRequests = dbContext.Request
-                          .Where(w => !dbContext.Response
-                          .Select(s => s.RequestId)
-                          .Contains(w.RequestId))
-                          .ToList();
+                          .Where(w => w.Response.Count == 0);
+
                     Debug.Print(newRequests.Count().ToString());
                     if (newRequests.Count() == 0)
                     {
                         logger.Info("Nothing new...back to sleep Zzzz");
                         return;
                     }
-
                     logger.Info("New requests count: " + newRequests.Count().ToString());
+                    newRequests = newRequests.Include(r => r.CustomerInfo);
                     foreach (var request in newRequests)
                     {
                         request.RequestSendTime = DateTime.Now;
-                        //Must have customer info at this point
-                        var info = dbContext.CustomerInfo.Where(i => i.RequestId == request.RequestId).First();
-                        var hdssRq = ToHDSSRequest(request, info);
+                        ////Must have customer info at this point
+                        //var info = dbContext.CustomerInfo.Where(i => i.RequestId == request.RequestId).Single();
+                        var hdssRq = ToHDSSRequest(request, request.CustomerInfo.Single());
                         var result = HDB.Program.PostToHDBank(url, hdssRq);
                         var response = StringToResponse(result);
                         //do smt with response code
@@ -87,7 +88,7 @@ namespace CashLoanTool.Jobs
                 ReceiveTime = DateTime.Now
             };
         }
-        private static HDSSRequest ToHDSSRequest(Request rq, CustomerInfo customerInfo)
+        public static HDSSRequest ToHDSSRequest(Request rq, CustomerInfo customerInfo)
         {
             var hdssRq = new HDSSRequest()
             {

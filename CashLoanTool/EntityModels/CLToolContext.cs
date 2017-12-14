@@ -12,7 +12,6 @@ namespace CashLoanTool.EntityModels
         public virtual DbSet<Response> Response { get; set; }
         public virtual DbSet<User> User { get; set; }
 
-
         //preserve
         public CLToolContext(DbContextOptions<CLToolContext> options) : base(options)
         {
@@ -132,9 +131,9 @@ namespace CashLoanTool.EntityModels
 
                 entity.Property(e => e.ResponseCode)
                     .IsRequired()
-                    .HasMaxLength(100);
+                    .HasMaxLength(10);
 
-                entity.Property(e => e.ResponseMessage).HasMaxLength(150);
+                entity.Property(e => e.ResponseMessage).HasMaxLength(200);
 
                 entity.Property(e => e.Signature).HasMaxLength(300);
 

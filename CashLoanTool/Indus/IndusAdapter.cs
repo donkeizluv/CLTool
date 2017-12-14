@@ -53,6 +53,9 @@ namespace CashLoanTool.Indus
 
         public CustomerInfo GetCustomerInfoIndus(string contractId)
         {
+            if (string.IsNullOrEmpty(contractId))
+                throw new ArgumentNullException();
+
             if (string.IsNullOrEmpty(Query))
                 throw new InvalidOperationException("Query is not set");
 

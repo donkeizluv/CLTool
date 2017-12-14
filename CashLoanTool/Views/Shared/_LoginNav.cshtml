@@ -8,11 +8,11 @@
     {
         <li>
             <a asp-area="" asp-controller="Account" asp-action="Info">
-                Hello,
+                Xin chào!,
                 @User.Identities.First(u => u.IsAuthenticated &&
                                      u.HasClaim(c => c.Type == ClaimTypes.Name)).FindFirst(ClaimTypes.Name).Value
             </a>
         </li>
-        <li><a asp-area="" asp-controller="Account" asp-action="LogOut">Logout</a></li>
+        <li><a asp-area="" asp-controller="Account" asp-action="LogOut">Thoát</a></li>
     }
 </ul>

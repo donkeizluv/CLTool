@@ -36,9 +36,10 @@ namespace CashLoanTool
         private const string GemboxDocumentKey = "DTJX-2LSB-QJV3-R3XP";
         public Startup(IConfiguration configuration)
         {
+            Configuration = configuration;
             //Register the lib
             ComponentInfo.SetLicense(GemboxDocumentKey);
-            Configuration = configuration;
+            APIScheduler.StartQuartz(configuration);
         }
 
         public IConfiguration Configuration { get; }
@@ -49,14 +50,15 @@ namespace CashLoanTool
             //inject im-mem cache
             //services.AddMemoryCache();
 
-            //injecting
-            //this will inject context to controller ctor
+            //Inject db context
             services.AddDbContext<CLToolContext>(options =>
                         options.UseSqlServer(Configuration.GetConnectionString("Default")));
 
-
+            //Inject config
             services.AddSingleton<IConfiguration>(Configuration);
-            services.AddSingleton<IIndusAdapter>(CreateIndusInstance());
+            //Inject indus adapter
+            services.AddSingleton<IIndusAdapter>(IndusFactory.GetIndusInstance(Configuration, 
+                File.ReadAllText($"{ExeDir}\\{Configuration.GetSection("Indus").GetValue<string>("QueryFileName")}")));
 
             //auth service
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -86,42 +88,8 @@ namespace CashLoanTool
                 options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
             });
         }
-        private IIndusAdapter CreateIndusInstance()
-        {
-            string server = Configuration.GetSection("Indus").GetValue<string>("Server");
-            int port = Configuration.GetSection("Indus").GetValue<int>("Port");
-            string sid = Configuration.GetSection("Indus").GetValue<string>("SID");
-            string userName = Configuration.GetSection("Indus").GetValue<string>("Username");
-            string pwd = Configuration.GetSection("Indus").GetValue<string>("Pwd");
-            var indus =  new IndusAdapter(server, port, sid, userName, pwd);
-            indus.Query = File.ReadAllText($"{ExeDir}\\{Configuration.GetSection("Indus").GetValue<string>("QueryFileName")}");
-            return indus;
-        }
-        private void StartQuartz()
-        {
-            // Grab the Scheduler instance from the Factory 
-            var scheduler = StdSchedulerFactory.GetDefaultScheduler();
-            //Add context params
-            scheduler.Context.Put(EnviromentHelper.ConnectionStringKey, Configuration.GetConnectionString("Default"));
-            scheduler.Context.Put(EnviromentHelper.ApiUrlKey, Configuration.GetSection("API").GetValue<string>("URL"));
-            //Create job
-            IJobDetail job = JobBuilder.Create<ExternalAPIJob>()
-                .WithIdentity("APIJob", "Group1")
-                .Build();
-
-            //trigger
-            ITrigger trigger = TriggerBuilder.Create()
-                .WithIdentity("DefaultTrigger", "Group1")
-                .StartNow()
-                .WithSimpleSchedule(x => x
-                    .WithIntervalInSeconds(Configuration.GetSection("Scheduler").GetValue<int>("Interval"))
-                    .RepeatForever())
-                .Build();
-
-            //Start sche & job
-            scheduler.ScheduleJob(job, trigger);
-            scheduler.Start();
-        }
+       
+        
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
@@ -153,7 +121,6 @@ namespace CashLoanTool
                 //   name: "api",
                 //   template: "api/{controller}/{action}");
             });
-            StartQuartz();
         }
     }
 }

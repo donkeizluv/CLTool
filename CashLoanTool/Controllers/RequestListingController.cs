@@ -10,7 +10,6 @@ using CashLoanTool.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using NLog;
 
@@ -121,11 +120,10 @@ namespace CashLoanTool.Controllers
         }
 
         [HttpGet]
-        public IActionResult FetchModel([FromQuery] int page = 1, [FromQuery] string by = "", [FromQuery] bool asc = true)
+        public IActionResult FetchModel([FromQuery] int page = 1, [FromQuery] string by = "AcctNo", [FromQuery] bool asc = true)
         {
             using (_context)
             {
-                by = string.IsNullOrEmpty(by) ? "AcctNo" : by;
                 var currentUser = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
                 return Ok(GetModel(_context, currentUser, page, by, asc));
             }
@@ -134,11 +132,13 @@ namespace CashLoanTool.Controllers
         {
             switch (orderBy)
             {
+                case "RequestCreateTime":
+                    return i => i.RequestCreateTime;
                 case "AcctNo":
-                    return i => i.HasResponse;
+                    return i => i.AcctNo;
                 //Others are not NYI
                 default:
-                    return i => i.HasResponse;
+                    return i => i.AcctNo;
             }
         }
         internal static RequestListingModel GetModel(CLToolContext context, string userName, int pageNum, string orderBy, bool asc)
