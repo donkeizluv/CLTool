@@ -1,4 +1,5 @@
 ﻿using CashLoanTool.EntityModels;
+using CashLoanTool.Filters;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
@@ -12,6 +13,7 @@ using System.Threading.Tasks;
 
 namespace CashLoanTool.Controllers
 {
+    [CustomExceptionFilterAttribute]
     public class AccountController : Controller
     {
         private const string LoginStatusKey = "LoginStatus";

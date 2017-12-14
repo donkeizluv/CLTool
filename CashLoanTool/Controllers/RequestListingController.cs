@@ -4,6 +4,7 @@ using System.Linq;
 using System.Security.Claims;
 using CashLoanTool.BussinessRules;
 using CashLoanTool.EntityModels;
+using CashLoanTool.Filters;
 using CashLoanTool.Helper;
 using CashLoanTool.Indus;
 using CashLoanTool.ViewModels;
@@ -27,6 +28,7 @@ namespace CashLoanTool.Controllers
 
     [Route("API/RequestListing/[action]")]
     [Authorize]
+    [CustomExceptionFilterAttribute] //use to catch unhandle Action Ex
     public class RequestListingController : Controller
     {
         private static Logger logger = LogManager.GetCurrentClassLogger();
@@ -86,35 +88,27 @@ namespace CashLoanTool.Controllers
             {
                 //Get customer info from indus & strip vietnamese accents
                 var customerInfo = _indus.GetCustomerInfoIndus(contractId);
-                try
+                //double check incase client got modified intentionally
+                if (CustomerValidator.Check(customerInfo, out var mess))
                 {
-                    //double check incase client got modified intentionally
-                    if (CustomerValidator.Check(customerInfo, out var mess))
+                    var request = new Request()
                     {
-                        var request = new Request()
-                        {
-                            LoanNo = contractId,
-                            RequestCreateTime = DateTime.Now,
-                            RequestType = "OpenAccount", //Hardcoded as HDB request
-                            Username = currentUser,
-                            Signature = "xxx" //Hardcoded as HDB request
-                        };
-                        request.CustomerInfo.Add(customerInfo);
-                        _context.Request.Add(request);
-                        _context.SaveChanges();
-                        //Request acccepted
-                        return Ok(new CustomerCheck() { Message = $"Request thành công! ID: {request.RequestId}", Valid = true });
-                    }
-                    else
-                    {
-                        //Check failed
-                        return Ok(new CustomerCheck() { Message = mess, Valid = false });
-                    }
+                        LoanNo = contractId,
+                        RequestCreateTime = DateTime.Now,
+                        RequestType = "OpenAccount", //Hardcoded as HDB request
+                        Username = currentUser,
+                        Signature = "xxx" //Hardcoded as HDB request
+                    };
+                    request.CustomerInfo.Add(customerInfo);
+                    _context.Request.Add(request);
+                    _context.SaveChanges();
+                    //Request acccepted
+                    return Ok(new CustomerCheck() { Message = $"Request thành công! ID: {request.RequestId}", Valid = true });
                 }
-                catch (DbUpdateException ex)
+                else
                 {
-                    EnviromentHelper.LogException(ex, logger);
-                    throw;
+                    //Check failed
+                    return Ok(new CustomerCheck() { Message = mess, Valid = false });
                 }
             }
         }
@@ -171,5 +165,6 @@ namespace CashLoanTool.Controllers
                 .Skip(excludedRows)
                 .Take(RequestListingModel.ItemPerPage).ToList();
         }
+       
     }
 }

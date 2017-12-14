@@ -14,10 +14,8 @@ using CashLoanTool.Indus;
 using System.Reflection;
 using System;
 using System.IO;
-using Quartz.Impl;
-using Quartz;
 using CashLoanTool.Jobs;
-using System.Collections.Generic;
+
 
 namespace CashLoanTool
 {
@@ -53,7 +51,6 @@ namespace CashLoanTool
             //Inject db context
             services.AddDbContext<CLToolContext>(options =>
                         options.UseSqlServer(Configuration.GetConnectionString("Default")));
-
             //Inject config
             services.AddSingleton<IConfiguration>(Configuration);
             //Inject indus adapter

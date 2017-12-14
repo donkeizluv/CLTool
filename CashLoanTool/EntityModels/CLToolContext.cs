@@ -41,11 +41,11 @@ namespace CashLoanTool.EntityModels
             {
                 entity.HasKey(e => e.CustomerId);
 
-                entity.Property(e => e.CompanyAddress).HasMaxLength(100);
+                entity.Property(e => e.CompanyAddress).HasMaxLength(400);
 
                 entity.Property(e => e.CompanyName).HasMaxLength(50);
 
-                entity.Property(e => e.ContactAddress).HasMaxLength(150);
+                entity.Property(e => e.ContactAddress).HasMaxLength(400);
 
                 entity.Property(e => e.Dob)
                     .HasColumnName("DOB")
@@ -59,7 +59,9 @@ namespace CashLoanTool.EntityModels
                     .IsRequired()
                     .HasMaxLength(1);
 
-                entity.Property(e => e.HomeAddress).HasMaxLength(150);
+                entity.Property(e => e.HomeAddress)
+                    .IsRequired()
+                    .HasMaxLength(400);
 
                 entity.Property(e => e.IdentityCard)
                     .IsRequired()

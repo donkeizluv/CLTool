@@ -10,10 +10,12 @@ using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using CashLoanTool.DocumentUltility;
 using NLog;
+using CashLoanTool.Filters;
 
 namespace CashLoanTool.Controllers
 {
     [Authorize]
+    [CustomExceptionFilterAttribute]
     public class DocumentController : Controller
     {
         private static Logger logger = LogManager.GetCurrentClassLogger();

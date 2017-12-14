@@ -7,10 +7,11 @@ using Microsoft.AspNetCore.Http;
 using CashLoanTool.EntityModels;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Caching.Memory;
-using CashLoanTool.ViewModels;
+using CashLoanTool.Filters;
 
 namespace CashLoanTool.Controllers
 {
+    [CustomExceptionFilterAttribute]
     public class HomeController : Controller
     {
         private CLToolContext _context;
