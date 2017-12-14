@@ -1,5 +1,6 @@
 ﻿using CashLoanTool.EntityModels;
 using CashLoanTool.Filters;
+using CashLoanTool.Helper;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
@@ -62,6 +63,7 @@ namespace CashLoanTool.Controllers
         [AllowAnonymous]
         public IActionResult Login()
         {
+            HttpContext.Response.Headers.Add("Login", EnviromentHelper.LoginUrl.ToString());
             if (User.Identities.Any(u => u.IsAuthenticated))
             {
                 return RedirectToAction("Index", "Home");

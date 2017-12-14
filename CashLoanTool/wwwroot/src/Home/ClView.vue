@@ -167,6 +167,12 @@
                 //console.log(url);
                 axios.get(url)
                     .then(function (response) {
+                        //console.log(response);
+                        //console.log(response.headers.login);
+                        if (response.headers.login) {
+                            //Login expired -> Redirect
+                            window.location.href = response.headers.login;
+                        }
                         that.$data.RequestListingModel = response.data;
                         that.$data.Requests = response.data.Requests;
                         that.UpdatePagination();
@@ -265,7 +271,11 @@
                     post: that.$data.ContractId
                 })
                     .then(function (response) {
-                        console.log(response);
+                        if (response.headers.login) {
+                            //Login expired -> Redirect
+                            window.location.href = response.headers.login;
+                        }
+                        //console.log(response);
                         var valid = response.data.Valid;
                         var message = response.data.Message;
                         if (valid) {
@@ -297,6 +307,10 @@
                     post: that.$data.ContractId
                 })
                     .then(function (response) {
+                        if (response.headers.login) {
+                            //Login expired -> Redirect
+                            window.location.href = response.headers.login;
+                        }
                         //console.log(response);
                         var valid = response.data.Valid;
                         var message = response.data.Message;

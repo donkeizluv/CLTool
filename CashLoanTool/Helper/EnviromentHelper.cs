@@ -1,4 +1,5 @@
 ﻿using CashLoanTool.EntityModels;
+using Microsoft.AspNetCore.Http;
 using NLog;
 using System;
 using System.Text.RegularExpressions;
@@ -79,5 +80,13 @@ namespace CashLoanTool.Helper
                 LogException(ex.InnerException, logger);
             }
         }
+        public static PathString LoginUrl
+        {
+            get
+            {
+                return new PathString("/Account/Login");
+            }
+        }
+
     }
 }
