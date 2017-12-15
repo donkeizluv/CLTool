@@ -10,6 +10,12 @@
 
   <ItemGroup>
     <Content Remove="NLog.config" />
+    <Content Remove="wwwroot\src\Common.js" />
+    <Content Remove="wwwroot\src\Home\API.js" />
+    <Content Remove="wwwroot\src\Home\app.js" />
+    <Content Remove="wwwroot\src\Home\ClView.vue" />
+    <Content Remove="wwwroot\src\Home\RequestModal.vue" />
+    <Content Remove="wwwroot\src\shared.js" />
   </ItemGroup>
 
   <ItemGroup>
@@ -45,6 +51,12 @@
     <None Include="NLog.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="wwwroot\src\Common.js" />
+    <None Include="wwwroot\src\Home\API.js" />
+    <None Include="wwwroot\src\Home\app.js" />
+    <None Include="wwwroot\src\Home\ClView.vue" />
+    <None Include="wwwroot\src\Home\RequestModal.vue" />
+    <None Include="wwwroot\src\shared.js" />
   </ItemGroup>
 
   <ItemGroup>

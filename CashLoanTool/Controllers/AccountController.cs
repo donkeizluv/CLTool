@@ -53,6 +53,7 @@ namespace CashLoanTool.Controllers
         public enum LoginLevel
         {
             Error,
+            NotActive,
             NoPermission,
             User,
             ReadOnly,
@@ -82,6 +83,7 @@ namespace CashLoanTool.Controllers
             var loginLevel = GetLoginLevel(userName, pwd);
             if (loginLevel == LoginLevel.Error) return LoginFail();
             if (loginLevel == LoginLevel.NoPermission) return NoPermission();
+            if (loginLevel == LoginLevel.NotActive) return NotActive();
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, userName, ClaimValueTypes.String, Issuer),
@@ -110,6 +112,11 @@ namespace CashLoanTool.Controllers
         private IActionResult NoPermission()
         {
             TempData[LoginStatusKey] = "No permission found."; //pass data to redirect
+            return RedirectToAction("Login", "Account");
+        }
+        private IActionResult NotActive()
+        {
+            TempData[LoginStatusKey] = "Account is de-activated."; //pass data to redirect
             return RedirectToAction("Login", "Account");
         }
 
@@ -153,12 +160,12 @@ namespace CashLoanTool.Controllers
             if (!ValidateCredentials(userName, pwd)) return LoginLevel.Error;
             using (_context)
             {
-                var user = _context.User.FirstOrDefault(u => string.Compare(u.Username, userName, true) == 0);
+                var user = _context.User.FirstOrDefault(u => string.Compare(u.Username, userName) == 0);
                 if (user == null)
-                {
-                    //no permission
-                    return LoginLevel.NoPermission;
-                }
+                    return LoginLevel.NoPermission; //no permission
+
+                if (!user.Active)
+                    return LoginLevel.NotActive;
 
                 var accountType = user.Type;
                 if (!Enum.IsDefined(typeof(LoginLevel), accountType))

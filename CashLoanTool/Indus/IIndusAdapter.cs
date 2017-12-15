@@ -10,6 +10,6 @@ namespace CashLoanTool.Indus
     public interface IIndusAdapter
     {
         string GetConnectionString();
-        CustomerInfo GetCustomerInfoIndus(string contractId);
+        CustomerInfo GetCustomerInfoIndus(string contractId, out string status);
     }
 }

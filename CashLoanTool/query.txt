@@ -1,4 +1,4 @@
-﻿select
+﻿SELECT
 tawd.szlname || ' ' || tawd.szmname || ' ' || tawd.szfname "FullName"
 ,tawd.dtdateofbirth "DOB"
 ,'' "POB"
@@ -34,13 +34,13 @@ tawd.szlname || ' ' || tawd.szmname || ' ' || tawd.szfname "FullName"
                mst_state stat
          WHERE 1=1
           -- AND TAWD.SZPARTYTYPE  = 'BORROWER'
-           and oad.iaddressseq   = TAWD.Iaddressseq
+           AND oad.iaddressseq   = TAWD.Iaddressseq
            AND OAD.SZADDRESSTYPE = 'OF'
-           and oad.isrlno = 1
-           and oad.szcitycode = cit.szcitycode(+)
-           and oad.szstatecode = cit.szstatecode(+)
-           and oad.szstatecode = stat.szstatecode(+)
-           and oad.szcountry = stat.szcountrycode(+)
+           AND oad.isrlno = 1
+           AND oad.szcitycode = cit.szcitycode(+)
+           AND oad.szstatecode = cit.szstatecode(+)
+           AND oad.szstatecode = stat.szstatecode(+)
+           AND oad.szcountry = stat.szcountrycode(+)
        ) as "ContactAddress"
 ,rs_addr.mobile "Phone"       
 ,gen.szdesc "Profession"
@@ -49,6 +49,17 @@ tawd.szlname || ' ' || tawd.szmname || ' ' || tawd.szfname "FullName"
 ,tawd.szeducation "GraduateNPostGraduate"
 ,nvl(tawd.szemployername,'') "CompanyName"
 ,nvl(tawd.szemployeraddress,'') "CompanyAddress"
+,nvl((SELECT distinct WFA.szdesc FROM   
+           WFWORKFLOWTOKEN WFT
+           ,WFTOKENATTRIBUTES WTA
+           ,WFACTIVITYMASTER WFA
+  WHERE 1=1
+    AND WTA.SZTOKENNO = WFT.SZTOKENNO
+    AND WTA.SZACTIVITYCODE = WFA.SZACTIVITYCODE
+    AND WFT.SZWORKFLOWDRIVER = tawd.SZLOANAPPLNNO
+    AND WTA.SZACTIVITYCODE = WFA.SZACTIVITYCODE
+    AND WTA.szactivitycode in ('SAN_LETT')
+  ),'Unavailable')   "Status"        
 FROM       
   tr_applicationworkdetails tawd
   ,(SELECT OAD.SZADDRESS1 || ',' ||
@@ -79,17 +90,20 @@ FROM
                mst_state stat
          WHERE 1=1
            AND OAD.SZADDRESSTYPE = 'RS'
-           and oad.isrlno = 1
-           and oad.szcitycode = cit.szcitycode(+)
-           and oad.szstatecode = cit.szstatecode(+)
-           and oad.szstatecode = stat.szstatecode(+)
-           and oad.szcountry = stat.szcountrycode(+)
+           AND oad.isrlno = 1
+           AND oad.szcitycode = cit.szcitycode(+)
+           AND oad.szstatecode = cit.szstatecode(+)
+           AND oad.szstatecode = stat.szstatecode(+)
+           AND oad.szcountry = stat.szcountrycode(+)
        ) rs_addr
        ,induslosr.GENERALCONDITIONMASTER gen
-  where 1=1
+  WHERE 1=1
+
+
   AND tawd.szpartytype = 'BORROWER' 
-  and gen.SZSYSTEMNAME = 'LOS'
+  AND gen.SZSYSTEMNAME = 'LOS'
   AND gen.SZCONDITION = 'PROFESSION'
-  and gen.szvalue = tawd.szprofession
-  and rs_addr.iaddressseq   = TAWD.Iaddressseq
-  and tawd.szloanapplnno = '{param}'
+  AND gen.szvalue = tawd.szprofession
+  AND rs_addr.iaddressseq = TAWD.Iaddressseq
+  AND tawd.szloanapplnno = '{param}'
+ 

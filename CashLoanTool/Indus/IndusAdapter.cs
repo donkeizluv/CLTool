@@ -7,11 +7,14 @@ using Dapper;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using CashLoanTool.Helper;
+using NLog;
 
 namespace CashLoanTool.Indus
 {
     public class IndusAdapter : IIndusAdapter
     {
+        private static Logger logger = LogManager.GetCurrentClassLogger();
+
         private const string connectionStringTemplate =
             "User Id={username};Password={pwd};Data Source=(DESCRIPTION=" +
             "(ADDRESS=(PROTOCOL=TCP)(HOST={host})(PORT={port}))" +
@@ -51,7 +54,7 @@ namespace CashLoanTool.Indus
                 .Replace("{sid}", SID);
         }
 
-        public CustomerInfo GetCustomerInfoIndus(string contractId)
+        public CustomerInfo GetCustomerInfoIndus(string contractId, out string status)
         {
             if (string.IsNullOrEmpty(contractId))
                 throw new ArgumentNullException();
@@ -63,7 +66,7 @@ namespace CashLoanTool.Indus
             {
                 connection.ConnectionString = GetConnectionString();
                 connection.Open();
-                var customer =  CustomerConverter.ToCustomer(connection, new CommandDefinition(GetQuery(contractId)));
+                var customer =  CustomerConverter.ToCustomer(connection, new CommandDefinition(GetQuery(contractId)), out status);
                 if (customer == null) return null; //Cant find customer
                 //Return customer with stripped vietnamese accents
                 return EnviromentHelper.StripCustomerAccentsNSpecialChars(customer);

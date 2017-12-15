@@ -22,12 +22,21 @@ namespace CashLoanTool.BussinessRules
         //phone = customerInfo.Phone,
         //loanNo = rq.LoanNo,
         //signature = "xxx"
-        public static bool Check(CustomerInfo customer, out string message)
+
+
+        public const string AcceptStatus = "Contract Printing";
+        public static bool Check(CustomerInfo customer, string status, out string message)
         {
             message = string.Empty;
             if (customer == null)
             {
                 message = "Không tìm thấy khách hàng.";
+                return false;
+            }
+            //Check status
+            if (string.IsNullOrEmpty(status) || string.Compare(status.ToUpper(), AcceptStatus.ToUpper()) != 0)
+            {
+                message = $"Trạng thái hợp đồng không hợp lệ: {status??string.Empty}";
                 return false;
             }
             //CMND
@@ -72,6 +81,7 @@ namespace CashLoanTool.BussinessRules
                 message = "Không có thông tin số điện thoại khách hàng trên hệ thống!";
                 return false;
             }
+            message = $"Khách hàng hợp lệ. Tên: {customer.FullName}, CMND: {customer.IdentityCard}";
             return true;
         }
     }

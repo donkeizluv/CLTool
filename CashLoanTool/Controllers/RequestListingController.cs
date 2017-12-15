@@ -57,23 +57,23 @@ namespace CashLoanTool.Controllers
                 if(rq.Count() > 0)
                 {
                     //Not valid
-                    var rqId = rq.First().RequestId;
+                    var rqId = rq.Single().RequestId;
                     return Ok(new CustomerCheck() { Message = $"Khách hàng này đã request với ID: {rqId}" , Valid = false });
                 }
                 //Get info from indus
-                var customerInfo = _indus.GetCustomerInfoIndus(contractId.Trim());
+                var customerInfo = _indus.GetCustomerInfoIndus(contractId.Trim(), out string status);
                 //Check if customer meet bussiness' requirement
-                if (CustomerValidator.Check(customerInfo, out var mess))    
+                if (CustomerValidator.Check(customerInfo, status, out var mess))    
                 {
                     //Valid
-                    return Ok(new CustomerCheck() { Message = $"Khách hàng hợp lệ. Tên: {customerInfo.FullName}, CMND: {customerInfo.IdentityCard}", Valid = true });
+                    return Ok(new CustomerCheck() { Message = mess, Valid = true });
                 }
                 else
                 {
                     //Not valid
+                    //Return Valid = false
                     return Ok(new CustomerCheck() { Message = mess, Valid = false });
                 }
-
             }
         }
         [HttpPost]
@@ -87,9 +87,9 @@ namespace CashLoanTool.Controllers
             using (_context)
             {
                 //Get customer info from indus & strip vietnamese accents
-                var customerInfo = _indus.GetCustomerInfoIndus(contractId);
+                var customerInfo = _indus.GetCustomerInfoIndus(contractId, out var status);
                 //double check incase client got modified intentionally
-                if (CustomerValidator.Check(customerInfo, out var mess))
+                if (CustomerValidator.Check(customerInfo, status, out var mess))
                 {
                     var request = new Request()
                     {
@@ -108,6 +108,8 @@ namespace CashLoanTool.Controllers
                 else
                 {
                     //Check failed
+                    //This should not ever happen unless client got tempered with
+                    logger.Error($"CreateRequest CustomerValidator.Check Failed contractId: {contractId}");
                     return Ok(new CustomerCheck() { Message = mess, Valid = false });
                 }
             }
