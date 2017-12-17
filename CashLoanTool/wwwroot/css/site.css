@@ -4,6 +4,10 @@
 span[disabled] {
     pointer-events: none;
 }
+.env{
+    color: orange;
+    font-weight: bold;
+}
 hr {
     margin-top: 15px;
     margin-bottom: 15px;
@@ -31,6 +35,30 @@ hr {
     float: none;
     margin: 0 auto;
 }
+
+.color-swipe {
+    text-align: center;
+    background: linear-gradient(to right, #9900d8 20%, #cf0086 40%, #de0052 60%, #ff00d3 80%, #8121ff 100%); 
+    background-size: 200% auto;
+    color: #000;
+    /*background-clip: text;*/
+    /*text-fill-color: transparent;*/
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    -webkit-animation: shine 2s linear infinite;
+    animation: shine 2s linear infinite;
+}
+@-webkit-keyframes shine {
+    to {
+        background-position: 200% center;
+    }
+}
+@keyframes shine {
+    to {
+        background-position: 200% center;
+    }
+}
+
 
 
 

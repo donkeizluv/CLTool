@@ -34,9 +34,9 @@ namespace CashLoanTool.Controllers
         private static Logger logger = LogManager.GetCurrentClassLogger();
         private CLToolContext _context;
         private IConfiguration _config;
-        private IIndusAdapter _indus;
+        private ICustomerAdapter _indus;
         //private IMemoryCache _cache;
-        public RequestListingController(CLToolContext context, IConfiguration config, IIndusAdapter indusAdapter)
+        public RequestListingController(CLToolContext context, IConfiguration config, ICustomerAdapter indusAdapter)
         {
             _context = context;
             _config = config;
@@ -61,7 +61,7 @@ namespace CashLoanTool.Controllers
                     return Ok(new CustomerCheck() { Message = $"Khách hàng này đã request với ID: {rqId}" , Valid = false });
                 }
                 //Get info from indus
-                var customerInfo = _indus.GetCustomerInfoIndus(contractId.Trim(), out string status);
+                var customerInfo = _indus.GetCustomerInfo(contractId.Trim(), out string status);
                 //Check if customer meet bussiness' requirement
                 if (CustomerValidator.Check(customerInfo, status, out var mess))    
                 {
@@ -87,7 +87,7 @@ namespace CashLoanTool.Controllers
             using (_context)
             {
                 //Get customer info from indus & strip vietnamese accents
-                var customerInfo = _indus.GetCustomerInfoIndus(contractId, out var status);
+                var customerInfo = _indus.GetCustomerInfo(contractId, out var status);
                 //double check incase client got modified intentionally
                 if (CustomerValidator.Check(customerInfo, status, out var mess))
                 {

@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace CashLoanTool.Indus
 {
-    public interface IIndusAdapter
+    public interface ICustomerAdapter
     {
         string GetConnectionString();
-        CustomerInfo GetCustomerInfoIndus(string contractId, out string status);
+        CustomerInfo GetCustomerInfo(string contractId, out string status);
     }
 }

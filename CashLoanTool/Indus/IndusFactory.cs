@@ -9,7 +9,7 @@ namespace CashLoanTool.Indus
 {
     public static class IndusFactory
     {
-        public static IIndusAdapter GetIndusInstance(IConfiguration configuration, string sql)
+        public static ICustomerAdapter GetIndusInstance(IConfiguration configuration, string sql)
         {
             string server = configuration.GetSection("Indus").GetValue<string>("Server");
             int port = configuration.GetSection("Indus").GetValue<int>("Port");

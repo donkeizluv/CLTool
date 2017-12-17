@@ -43,7 +43,7 @@ tawd.szlname || ' ' || tawd.szmname || ' ' || tawd.szfname "FullName"
            AND oad.szcountry = stat.szcountrycode(+)
        ) as "ContactAddress"
 ,rs_addr.mobile "Phone"       
-,gen.szdesc "Profession"
+,gen.szdesc "Professional"
 ,tawd.cmstatus "MartialStatus"
 ,tawd.szeducationlevel "EducationLvl"
 ,tawd.szeducation "GraduateNPostGraduate"

@@ -4,12 +4,22 @@
     <TargetFramework>net461</TargetFramework>
 	<TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
 	<TypeScriptToolsVersion>2.5</TypeScriptToolsVersion>
-	<Description>DealerContractArchive site</Description>
-	<PackageId>DealerContractArchive</PackageId>
+	<Description>CashLoanTool site</Description>
+	<PackageId>CashLoanTool</PackageId>
+	<Company>HDSS</Company>
+	<Authors>Hongln</Authors>
+	<AssemblyVersion>1.0.1.0</AssemblyVersion>
+	<FileVersion>1.0.1.0</FileVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
 
   <ItemGroup>
     <Content Remove="NLog.config" />
+    <Content Remove="package-lock.json" />
+    <Content Remove="package.json" />
     <Content Remove="wwwroot\src\Common.js" />
     <Content Remove="wwwroot\src\Home\API.js" />
     <Content Remove="wwwroot\src\Home\app.js" />
@@ -30,7 +40,7 @@
     <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.0.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.0.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.0.1" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer.Design" Version="1.1.4" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer.Design" Version="1.1.5" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="2.0.1" />
     <PackageReference Include="Microsoft.VisualStudio.Web.BrowserLink" Version="2.0.1" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.0.1" />
@@ -44,13 +54,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Helper\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Include="NLog.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="package-lock.json" />
+    <None Include="package.json" />
     <None Include="wwwroot\src\Common.js" />
     <None Include="wwwroot\src\Home\API.js" />
     <None Include="wwwroot\src\Home\app.js" />
@@ -61,7 +69,7 @@
 
   <ItemGroup>
     <Reference Include="HDB">
-      <HintPath>C:\Users\admin\Desktop\HDB.dll</HintPath>
+      <HintPath>..\HDB.dll</HintPath>
     </Reference>
     <Reference Include="System.DirectoryServices.AccountManagement" />
   </ItemGroup>
@@ -71,5 +79,21 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <TypeScriptTarget>ES5</TypeScriptTarget>
+    <TypeScriptJSXEmit>None</TypeScriptJSXEmit>
+    <TypeScriptModuleKind>None</TypeScriptModuleKind>
+    <TypeScriptCompileOnSaveEnabled>False</TypeScriptCompileOnSaveEnabled>
+    <TypeScriptNoImplicitAny>True</TypeScriptNoImplicitAny>
+    <TypeScriptRemoveComments>False</TypeScriptRemoveComments>
+    <TypeScriptOutFile />
+    <TypeScriptOutDir />
+    <TypeScriptGeneratesDeclarations>False</TypeScriptGeneratesDeclarations>
+    <TypeScriptNoEmitOnError>True</TypeScriptNoEmitOnError>
+    <TypeScriptSourceMap>False</TypeScriptSourceMap>
+    <TypeScriptMapRoot />
+    <TypeScriptSourceRoot />
+  </PropertyGroup>
 
 </Project>

@@ -21,15 +21,15 @@ namespace CashLoanTool.Jobs
         public void Execute(IJobExecutionContext context)
         {
             //logger.Info("Execute job....");
-            var schedulerContext = context.Scheduler.Context;
-            var conStr = (string)schedulerContext.Get(EnviromentHelper.ConnectionStringKey);
-            if (string.IsNullOrEmpty(conStr))
-                throw new ArgumentException("Invalid connection string");
-            var url = (string)schedulerContext.Get(EnviromentHelper.ApiUrlKey);
-            if (string.IsNullOrEmpty(url))
-                throw new ArgumentException("Invalid API URL");
             try
             {
+                var schedulerContext = context.Scheduler.Context;
+                var conStr = (string)schedulerContext.Get(EnviromentHelper.ConnectionStringKey);
+                if (string.IsNullOrEmpty(conStr))
+                    throw new ArgumentException("Invalid connection string");
+                var url = (string)schedulerContext.Get(EnviromentHelper.ApiUrlKey);
+                if (string.IsNullOrEmpty(url))
+                    throw new ArgumentException("Invalid API URL");
                 using (var dbContext = new CLToolContext(conStr))
                 {
                     //Will result in all request, dk why :/
@@ -71,7 +71,12 @@ namespace CashLoanTool.Jobs
             catch (Exception ex)
             {
                 EnviromentHelper.LogException(ex, logger);
-                throw;
+                logger.Fatal("************** Unhandle exception in Scheduler => Stop scheduler **************");
+                var jobEx = new JobExecutionException(ex);
+                //Stop all trigger
+                jobEx.UnscheduleAllTriggers = true;
+                //Apply effect
+                throw jobEx;
             }
         }
       

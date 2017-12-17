@@ -6,7 +6,7 @@ using CashLoanTool.EntityModels;
 
 namespace CashLoanTool.Indus
 {
-    public class MockIndusAdapter : IIndusAdapter
+    public class MockIndusAdapter : ICustomerAdapter
     {
         public void Dispose()
         {
@@ -14,7 +14,7 @@ namespace CashLoanTool.Indus
         }
 
         private static Random RND = new Random();
-        public CustomerInfo GetCustomerInfoIndus(string contractId, out string status)
+        public CustomerInfo GetCustomerInfo(string contractId, out string status)
         {
             status = "Yes";
             return new CustomerInfo()

@@ -13,14 +13,15 @@ namespace CashLoanTool.DocumentUltility
             var document = DocumentModel.Load(templatePath);
             // Find and replace text.
             document.Content.Replace("{name}", customer.FullName);
-            document.Content.Replace("{pob}", customer.Pob);
+            document.Content.Replace("{pob}", customer.Pob); //Indus cant supply this
             document.Content.Replace("{id}", customer.IdentityCard);
             document.Content.Replace("{id_date}", customer.IssueDate.ToString(DateFormat));
-            document.Content.Replace("{id_issuer}", customer.Issuer);
+            document.Content.Replace("{id_issuer}", customer.Issuer); //Indus cant supply this
             document.Content.Replace("{dob}", customer.Dob.ToString(DateFormat));
-            document.Content.Replace("{addr}", customer.ContactAddress);
-            document.Content.Replace("{occu}", customer.Professional);
-            document.Content.Replace("{pos}", customer.Position);
+            document.Content.Replace("{addr}", (customer.HomeAddress??string.Empty).Trim());
+            document.Content.Replace("{ct_addr}", (customer.ContactAddress??string.Empty).Trim());
+            document.Content.Replace("{occu}", (customer.Professional??string.Empty).Trim());
+            document.Content.Replace("{pos}", (customer.Position??string.Empty).Trim());
             document.Content.Replace("{nat}", customer.Nationality);
             document.Content.Replace("{phone}", customer.Phone);
             document.Content.Replace("{acct_no}", acctNo);
@@ -34,20 +35,46 @@ namespace CashLoanTool.DocumentUltility
             
             if (GenderStringToBool(customer.Gender))
             {
-                foreach (ContentRange item in document.Content.Find("{m}"))
+                foreach (ContentRange item in document.Content.Find("{ma}"))
                     item.LoadText("S", new CharacterFormat() { FontName = "Wingdings 2" });
-                foreach (ContentRange item in document.Content.Find("{f}").Reverse())
+                foreach (ContentRange item in document.Content.Find("{f}"))
                     item.LoadText("o", new CharacterFormat() { FontName = "Wingdings" });
             }
             else
             {
                 foreach (ContentRange item in document.Content.Find("{f}"))
                     item.LoadText("T", new CharacterFormat() { FontName = "Wingdings 2" });
-                foreach (ContentRange item in document.Content.Find("{m}"))
+                foreach (ContentRange item in document.Content.Find("{ma}"))
                     item.LoadText("o", new CharacterFormat() { FontName = "Wingdings" });
             }
+            //if (MartialToBool(customer.MartialStatus))
+            //{
+            //    foreach (ContentRange item in document.Content.Find("{m}"))
+            //        item.LoadText("S", new CharacterFormat() { FontName = "Wingdings 2" });
+            //    foreach (ContentRange item in document.Content.Find("{s}"))
+            //        item.LoadText("o", new CharacterFormat() { FontName = "Wingdings" });
+            //}
+            //else
+            //{
+            //    foreach (ContentRange item in document.Content.Find("{s}"))
+            //        item.LoadText("T", new CharacterFormat() { FontName = "Wingdings 2" });
+            //    foreach (ContentRange item in document.Content.Find("{m}"))
+            //        item.LoadText("o", new CharacterFormat() { FontName = "Wingdings" });
+            //}
             return document;
         }
+        //private static bool MartialToBool(string martial)
+        //{
+        //    switch (martial.ToUpper())
+        //    {
+        //        case "S":
+        //            return false;
+        //        case "M":
+        //            return true;
+        //        default:
+        //            throw new ArgumentException("Unregconizable string: " + martial);
+        //    }
+        //}
         private static bool GenderStringToBool(string gender)
         {
             switch (gender.ToUpper())

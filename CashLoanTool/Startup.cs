@@ -37,7 +37,9 @@ namespace CashLoanTool
             Configuration = configuration;
             //Register the lib
             ComponentInfo.SetLicense(GemboxDocumentKey);
+#if !DEBUG
             APIScheduler.StartQuartz(configuration);
+#endif
         }
 
         public IConfiguration Configuration { get; }
@@ -54,7 +56,7 @@ namespace CashLoanTool
             //Inject config
             services.AddSingleton<IConfiguration>(Configuration);
             //Inject indus adapter
-            services.AddSingleton<IIndusAdapter>(IndusFactory.GetIndusInstance(Configuration, 
+            services.AddSingleton<ICustomerAdapter>(IndusFactory.GetIndusInstance(Configuration, 
                 File.ReadAllText($"{ExeDir}\\{Configuration.GetSection("Indus").GetValue<string>("QueryFileName")}")));
 
             //auth service
@@ -91,6 +93,7 @@ namespace CashLoanTool
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             EnviromentHelper.RootPath = env.ContentRootPath;
+            EnviromentHelper.EnvStr = Configuration.GetSection("General").GetValue<string>("EnvStr");
             app.UseAuthentication();
             //enforce SSL
             //app.UseRewriter(new RewriteOptions().AddRedirectToHttps((int)HttpStatusCode.Redirect, 44395));

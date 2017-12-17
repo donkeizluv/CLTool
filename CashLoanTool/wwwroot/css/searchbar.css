@@ -42,7 +42,7 @@
         position: static !important;
     }
 
-        .dropdown.dropdown-lg .dropdown-menu {
-            min-width: 500px;
-        }
+    .dropdown.dropdown-lg .dropdown-menu {
+        min-width: 500px;
+    }
 }
