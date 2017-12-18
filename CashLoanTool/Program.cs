@@ -23,8 +23,5 @@ namespace CashLoanTool
                 })
                 .UseStartup<Startup>()
                 .Build();
-        //WebHost.CreateDefaultBuilder(args)
-        //        .UseStartup<Startup>()
-        //        .Build();
     }
 }

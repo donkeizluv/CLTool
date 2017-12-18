@@ -31,7 +31,7 @@ module.exports = {
     plugins: [
         new webpack.optimize.UglifyJsPlugin({
             output: {
-                comments: false
+                comments: false //No comments
             }
         })
     ]

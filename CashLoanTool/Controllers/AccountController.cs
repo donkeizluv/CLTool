@@ -41,7 +41,6 @@ namespace CashLoanTool.Controllers
                 return _config.GetSection("Authentication").GetValue<string>("Domain");
             }
         }
-
         private CLToolContext _context;
         private IConfiguration _config;
         public AccountController(CLToolContext context, IConfiguration config)

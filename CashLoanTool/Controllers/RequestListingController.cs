@@ -153,6 +153,7 @@ namespace CashLoanTool.Controllers
         {
             int getPage = pageNum < 1 ? 1 : pageNum;
             int excludedRows = (getPage - 1) * RequestListingModel.ItemPerPage;
+
             //User can only see own requests
             var query = context.Request.Where(r => string.Compare(r.Username, userName, true) == 0).
                 Include(r => r.Response).Include(r => r.CustomerInfo);

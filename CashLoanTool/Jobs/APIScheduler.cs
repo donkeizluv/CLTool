@@ -32,7 +32,7 @@ namespace CashLoanTool.Jobs
                 .WithIdentity("APIJob", "Group1")
                 .Build();
 
-            //trigger
+            //create trigger
             ITrigger trigger = TriggerBuilder.Create()
                 .WithIdentity("DefaultTrigger", "Group1")
                 .StartNow()

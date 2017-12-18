@@ -16,7 +16,6 @@ using System;
 using System.IO;
 using CashLoanTool.Jobs;
 
-
 namespace CashLoanTool
 {
     public class Startup

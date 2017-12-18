@@ -10,6 +10,7 @@
 	<Authors>Hongln</Authors>
 	<AssemblyVersion>1.0.1.0</AssemblyVersion>
 	<FileVersion>1.0.1.0</FileVersion>
+	<UserSecretsId>1bd6f51b-353f-42fd-8db5-c2c992650bd2</UserSecretsId>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
