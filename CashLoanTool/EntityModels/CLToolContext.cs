@@ -160,7 +160,7 @@ namespace CashLoanTool.EntityModels
 
                 entity.Property(e => e.Description)
                     .IsRequired()
-                    .HasMaxLength(50);
+                    .HasMaxLength(100);
 
                 entity.Property(e => e.Type)
                     .IsRequired()

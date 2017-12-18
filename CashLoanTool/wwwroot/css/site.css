@@ -45,8 +45,8 @@ hr {
     /*text-fill-color: transparent;*/
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    -webkit-animation: shine 2s linear infinite;
-    animation: shine 2s linear infinite;
+    -webkit-animation: shine 8s linear infinite;
+    animation: shine 8s linear infinite;
 }
 @-webkit-keyframes shine {
     to {

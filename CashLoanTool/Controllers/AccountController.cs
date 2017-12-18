@@ -49,7 +49,7 @@ namespace CashLoanTool.Controllers
             _config = config;
         }
 
-        public enum LoginLevel
+        public enum LoginResult
         {
             Error,
             NotActive,
@@ -80,9 +80,9 @@ namespace CashLoanTool.Controllers
         public async Task<IActionResult> DoLogin([FromForm]string userName = "", [FromForm]string pwd = "")
         {
             var loginLevel = GetLoginLevel(userName, pwd);
-            if (loginLevel == LoginLevel.Error) return LoginFail();
-            if (loginLevel == LoginLevel.NoPermission) return NoPermission();
-            if (loginLevel == LoginLevel.NotActive) return NotActive();
+            if (loginLevel == LoginResult.Error) return LoginFail();
+            if (loginLevel == LoginResult.NoPermission) return NoPermission();
+            if (loginLevel == LoginResult.NotActive) return NotActive();
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, userName, ClaimValueTypes.String, Issuer),
@@ -152,24 +152,24 @@ namespace CashLoanTool.Controllers
                 return pc.ValidateCredentials(userName, pwd);
             }
         }
-        private LoginLevel GetLoginLevel(string userName, string pwd)
+        private LoginResult GetLoginLevel(string userName, string pwd)
         {
             if (string.IsNullOrEmpty(userName) || string.IsNullOrEmpty(pwd))
-                return LoginLevel.Error;
-            if (!ValidateCredentials(userName, pwd)) return LoginLevel.Error;
+                return LoginResult.Error;
+            if (!ValidateCredentials(userName, pwd)) return LoginResult.Error;
             using (_context)
             {
                 var user = _context.User.FirstOrDefault(u => string.Compare(u.Username, userName) == 0);
                 if (user == null)
-                    return LoginLevel.NoPermission; //no permission
+                    return LoginResult.NoPermission; //no permission
 
                 if (!user.Active)
-                    return LoginLevel.NotActive;
+                    return LoginResult.NotActive;
 
                 var accountType = user.Type;
-                if (!Enum.IsDefined(typeof(LoginLevel), accountType))
-                    return LoginLevel.Error;
-                return (LoginLevel)Enum.Parse(typeof(LoginLevel), accountType);
+                if (!Enum.IsDefined(typeof(LoginResult), accountType))
+                    return LoginResult.Error;
+                return (LoginResult)Enum.Parse(typeof(LoginResult), accountType);
             }
         }
 

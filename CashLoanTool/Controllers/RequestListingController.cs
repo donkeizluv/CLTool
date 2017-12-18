@@ -16,16 +16,6 @@ using NLog;
 
 namespace CashLoanTool.Controllers
 {
-    public class PostWrapper
-    {
-        public string Post { get; set; }
-    }
-    public class CustomerCheck
-    {
-        public bool Valid { get; set; }
-        public string Message { get; set; }
-    }
-
     [Route("API/RequestListing/[action]")]
     [Authorize]
     [CustomExceptionFilterAttribute] //use to catch unhandle Action Ex
@@ -58,7 +48,7 @@ namespace CashLoanTool.Controllers
                 {
                     //Not valid
                     var rqId = rq.Single().RequestId;
-                    return Ok(new CustomerCheck() { Message = $"Khách hàng này đã request với ID: {rqId}" , Valid = false });
+                    return Ok(new ResultWrapper() { Message = $"Khách hàng này đã request với ID: {rqId}" , Valid = false });
                 }
                 //Get info from indus
                 var customerInfo = _indus.GetCustomerInfo(contractId.Trim(), out string status);
@@ -66,13 +56,13 @@ namespace CashLoanTool.Controllers
                 if (CustomerValidator.Check(customerInfo, status, out var mess))    
                 {
                     //Valid
-                    return Ok(new CustomerCheck() { Message = mess, Valid = true });
+                    return Ok(new ResultWrapper() { Message = mess, Valid = true });
                 }
                 else
                 {
                     //Not valid
                     //Return Valid = false
-                    return Ok(new CustomerCheck() { Message = mess, Valid = false });
+                    return Ok(new ResultWrapper() { Message = mess, Valid = false });
                 }
             }
         }
@@ -103,14 +93,14 @@ namespace CashLoanTool.Controllers
                     _context.Request.Add(request);
                     _context.SaveChanges();
                     //Request acccepted
-                    return Ok(new CustomerCheck() { Message = $"Request thành công! ID: {request.RequestId}", Valid = true });
+                    return Ok(new ResultWrapper() { Message = $"Request thành công! ID: {request.RequestId}", Valid = true });
                 }
                 else
                 {
                     //Check failed
                     //This should not ever happen unless client got tempered with
                     logger.Error($"CreateRequest CustomerValidator.Check Failed contractId: {contractId}");
-                    return Ok(new CustomerCheck() { Message = mess, Valid = false });
+                    return Ok(new ResultWrapper() { Message = mess, Valid = false });
                 }
             }
         }

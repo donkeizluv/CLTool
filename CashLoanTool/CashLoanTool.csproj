@@ -21,6 +21,9 @@
     <Content Remove="NLog.config" />
     <Content Remove="package-lock.json" />
     <Content Remove="package.json" />
+    <Content Remove="wwwroot\src\Adm\Adm.vue" />
+    <Content Remove="wwwroot\src\Adm\API.js" />
+    <Content Remove="wwwroot\src\Adm\app.js" />
     <Content Remove="wwwroot\src\Common.js" />
     <Content Remove="wwwroot\src\Home\API.js" />
     <Content Remove="wwwroot\src\Home\app.js" />
@@ -60,6 +63,9 @@
     </None>
     <None Include="package-lock.json" />
     <None Include="package.json" />
+    <None Include="wwwroot\src\Adm\API.js" />
+    <None Include="wwwroot\src\Adm\app.js" />
+    <None Include="wwwroot\src\Adm\Adm.vue" />
     <None Include="wwwroot\src\Common.js" />
     <None Include="wwwroot\src\Home\API.js" />
     <None Include="wwwroot\src\Home\app.js" />

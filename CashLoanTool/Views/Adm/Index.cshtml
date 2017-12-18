@@ -1,0 +1,14 @@
+﻿@model CashLoanTool.ViewModels.AdmModel
+@{
+    ViewData["Title"] = "Adm";
+}
+@*inject model*@
+<script>
+    window.model = @Json.Serialize(Model);
+</script>
+<div class="text-center">
+    <div id="app">
+        @*<adm></adm>*@
+    </div>
+</div>
+<script src="~/dist/Adm.min.js"></script>
