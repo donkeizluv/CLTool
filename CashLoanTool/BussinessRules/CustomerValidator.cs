@@ -28,7 +28,7 @@ namespace CashLoanTool.BussinessRules
 
 
         public const string AcceptStatus = "Contract Printing";
-        public static bool CheckAndClean(CustomerInfo customer, string contractId, string status, out string message, out CustomerInfo cleaned)
+        public static bool CheckAndClean(CustomerInfo customer, string contractId, out string message, out CustomerInfo cleaned)
         {
             cleaned = null;
             message = string.Empty;
@@ -38,9 +38,9 @@ namespace CashLoanTool.BussinessRules
                 return false;
             }
             //Check status
-            if (string.IsNullOrEmpty(status) || string.Compare(status.ToUpper(), AcceptStatus.ToUpper()) != 0)
+            if (string.IsNullOrEmpty(customer.Status) || string.Compare(customer.Status.ToUpper(), AcceptStatus.ToUpper()) != 0)
             {
-                message = $"Trạng thái hợp đồng không hợp lệ: {status??string.Empty}";
+                message = $"Trạng thái hợp đồng không hợp lệ: {customer.Status ?? string.Empty}";
                 return false;
             }
             //CMND
