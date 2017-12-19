@@ -56,7 +56,7 @@ namespace CashLoanTool.Indus
                 .Replace("{sid}", SID);
         }
 
-        public CustomerInfo GetCustomerInfo(string contractId, out string status)
+        public CustomerInfo GetCustomerInfo(string contractId)
         {
             if (string.IsNullOrEmpty(contractId))
                 throw new ArgumentNullException();
@@ -68,29 +68,23 @@ namespace CashLoanTool.Indus
             {
                 connection.ConnectionString = GetConnectionString();
                 connection.Open();
-                var customer =  ToCustomer(connection, new CommandDefinition(GetQuery(contractId)), out status);
+                var customer =  ToCustomer(connection, new CommandDefinition(GetQuery(contractId)));
                 if (customer == null) return null; //Cant find customer
                 //Return customer with stripped vietnamese accents
                 return StringCleaner.StripAccentsNSpecialChars(customer);
             }
         }
         //TODO: fix this mess
-        private CustomerInfo ToCustomer(IDbConnection connection, CommandDefinition cmd, out string status)
+        private CustomerInfo ToCustomer(IDbConnection connection, CommandDefinition cmd)
         {
-            status = string.Empty;
-            //TODO: test adding this field as Extention when have time...
-            var dyn = connection.Query(cmd.CommandText);
-            if (!dyn.Any()) return null;
-            status = dyn.Single().Status;
-            if (string.IsNullOrEmpty(status))
+            //Map to object
+            var customer = connection.Query<CustomerInfo>(cmd);
+            if (!customer.Any()) return null;
+            var cus = customer.Single();
+            if (string.IsNullOrEmpty(cus.Status))
             {
                 throw new InvalidDataException("Customer status is null!");
             }
-            //Map to object
-            var customer = connection.Query<CustomerInfo>(cmd);
-
-            if (customer.Count() == 0) return null;
-            var cus = customer.Single();
             return cus;
         }
     }

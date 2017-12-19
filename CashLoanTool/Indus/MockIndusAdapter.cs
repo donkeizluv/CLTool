@@ -14,9 +14,8 @@ namespace CashLoanTool.Indus
         }
 
         private static Random RND = new Random();
-        public CustomerInfo GetCustomerInfo(string contractId, out string status)
+        public CustomerInfo GetCustomerInfo(string contractId)
         {
-            status = "Yes";
             return new CustomerInfo()
             {
                 ContactAddress = "Somewhere",
@@ -32,7 +31,8 @@ namespace CashLoanTool.Indus
                 Pob = "342354234434",
                 Position = "Officer",
                 Professional = "IT",
-                CompanyAddress = "24C PDL.."
+                CompanyAddress = "24C PDL..",
+                Status = "wgawewe"
             };
         }
 

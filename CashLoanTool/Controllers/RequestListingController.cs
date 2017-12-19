@@ -51,9 +51,9 @@ namespace CashLoanTool.Controllers
                     return Ok(new ResultWrapper() { Message = $"Khách hàng này đã request với ID: {rqId}" , Valid = false });
                 }
                 //Get info from indus
-                var customerInfo = _indus.GetCustomerInfo(contractId.Trim(), out string status);
+                var customerInfo = _indus.GetCustomerInfo(contractId.Trim());
                 //Check if customer meet bussiness' requirement
-                if (CustomerValidator.CheckAndClean(customerInfo, contractId, status, out var mess, out var cleaned))    
+                if (CustomerValidator.CheckAndClean(customerInfo, contractId, out var mess, out var cleaned))    
                 {
                     //Valid
                     return Ok(new ResultWrapper() { Message = mess, Valid = true });
@@ -77,9 +77,9 @@ namespace CashLoanTool.Controllers
             using (_context)
             {
                 //Get customer info from indus & strip vietnamese accents
-                var customerInfo = _indus.GetCustomerInfo(contractId, out var status);
+                var customerInfo = _indus.GetCustomerInfo(contractId);
                 //double check incase client got modified intentionally
-                if (CustomerValidator.CheckAndClean(customerInfo, contractId, status, out var mess, out var cleaned))
+                if (CustomerValidator.CheckAndClean(customerInfo, contractId, out var mess, out var cleaned))
                 {
                     if (cleaned == null) throw new InvalidProgramException();
                     var request = new Request()

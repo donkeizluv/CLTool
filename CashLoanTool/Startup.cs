@@ -55,8 +55,10 @@ namespace CashLoanTool
             //Inject config
             services.AddSingleton<IConfiguration>(Configuration);
             //Inject indus adapter
-            services.AddSingleton<ICustomerAdapter>(IndusFactory.GetIndusInstance(Configuration, 
+            services.AddSingleton<ICustomerAdapter>(IndusFactory.GetIndusInstance(Configuration,
                 File.ReadAllText($"{ExeDir}\\{Configuration.GetSection("Indus").GetValue<string>("QueryFileName")}")));
+
+            //services.AddSingleton<ICustomerAdapter>(IndusFactory.GetMockInstance());
 
             //auth service
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

@@ -22,5 +22,9 @@ namespace CashLoanTool.Indus
             };
             return indus;
         }
+        public static ICustomerAdapter GetMockInstance()
+        {
+            return new MockIndusAdapter();
+        }
     }
 }
