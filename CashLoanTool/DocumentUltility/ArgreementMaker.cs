@@ -10,7 +10,7 @@ namespace CashLoanTool.DocumentUltility
         public const string DateFormat = "dd/MM/yyyy";
         public static DocumentModel FillTemplate(CustomerInfo customer, string acctNo, string templatePath)
         {
-            var document = DocumentModel.Load(templatePath);
+            var document = DocumentModel.Load(templatePath, DocxLoadOptions.DocxDefault);
             // Find and replace text.
             document.Content.Replace("{name}", customer.FullName);
             document.Content.Replace("{pob}", customer.Pob); //Indus cant supply this

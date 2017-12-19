@@ -72,5 +72,35 @@ namespace CashLoanTool.Controllers
                 return File(responseStream, "application/pdf");
             }
         }
+        [HttpGet]
+        public IActionResult GetDocumentDocx([FromQuery]int i)
+        {
+            using (_context)
+            {
+                //check valid
+                var currentUser = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
+                var request = _context.Request.Where(r => r.RequestId == i).Include(r => r.CustomerInfo).Include(r => r.Response).FirstOrDefault();
+                //invalid request id
+                if (request == null) return BadRequest();
+                //user can only print own request
+                if (string.Compare(request.Username, currentUser, true) != 0) return Unauthorized();
+                //request has no response yet
+                if (!request.HasValidAcctNo) return BadRequest();
+                //this cant happen => log to server log
+                if (!request.HasCustomerInfo)
+                {
+                    logger.Error($"Rq id: {i} has valid response but no customer info");
+                    return BadRequest();
+                }
+                var customerInfo = request.CustomerInfo.Single();
+                var document = ArgreementMaker.
+                    FillTemplate(customerInfo, request.AcctNo, EnviromentHelper.GetDocumentFullPath(TemplateName, DocumentFolder));
+                var responseStream = new MemoryStream();
+                document.Save(HttpContext.Response, "Contract", PdfSaveOptions.DocxDefault);
+                document.Save(responseStream, SaveOptions.DocxDefault);
+                //to return file use File()
+                return File(responseStream, "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+            }
+        }
     }
 }

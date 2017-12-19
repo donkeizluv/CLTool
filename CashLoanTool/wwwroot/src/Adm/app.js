@@ -1,5 +1,5 @@
 ﻿import Vue from 'vue'
-import Adm from './Adm.vue'
+import Adm from './AdmView.vue'
 
 new Vue({
     el: '#app',

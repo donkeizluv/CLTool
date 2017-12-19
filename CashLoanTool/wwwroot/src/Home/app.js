@@ -1,6 +1,6 @@
 ﻿import Vue from 'vue'
 import VueRouter from 'vue-router'
-import ClView from './ClView.vue'
+import ClView from './CLView.vue'
 //innit router
 var router = new VueRouter({
     mode: 'history',

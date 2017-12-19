@@ -2,8 +2,8 @@
 const webpack = require('webpack');
 module.exports = {
     entry: {
-        Home: './wwwroot/src/Home/app.js',
         Shared: './wwwroot/src/shared.js',
+        Home: './wwwroot/src/Home/app.js',
         Adm: './wwwroot/src/Adm/app.js'
     },
     output: {

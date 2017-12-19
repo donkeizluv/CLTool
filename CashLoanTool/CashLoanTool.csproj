@@ -21,7 +21,7 @@
     <Content Remove="NLog.config" />
     <Content Remove="package-lock.json" />
     <Content Remove="package.json" />
-    <Content Remove="wwwroot\src\Adm\Adm.vue" />
+    <Content Remove="wwwroot\src\Adm\AdmView.vue" />
     <Content Remove="wwwroot\src\Adm\API.js" />
     <Content Remove="wwwroot\src\Adm\app.js" />
     <Content Remove="wwwroot\src\Common.js" />
@@ -34,7 +34,7 @@
 
   <ItemGroup>
     <PackageReference Include="dapper" Version="1.50.4" />
-    <PackageReference Include="gembox.document" Version="27.3.30.1119" />
+    <PackageReference Include="gembox.document" Version="27.3.30.1144" />
     <PackageReference Include="Microsoft.AspNetCore" Version="2.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Cookies" Version="2.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="2.0.1" />
@@ -65,11 +65,11 @@
     <None Include="package.json" />
     <None Include="wwwroot\src\Adm\API.js" />
     <None Include="wwwroot\src\Adm\app.js" />
-    <None Include="wwwroot\src\Adm\Adm.vue" />
+    <None Include="wwwroot\src\Adm\AdmView.vue" />
     <None Include="wwwroot\src\Common.js" />
     <None Include="wwwroot\src\Home\API.js" />
     <None Include="wwwroot\src\Home\app.js" />
-    <None Include="wwwroot\src\Home\ClView.vue" />
+    <None Include="wwwroot\src\Home\CLView.vue" />
     <None Include="wwwroot\src\Home\RequestModal.vue" />
     <None Include="wwwroot\src\shared.js" />
   </ItemGroup>

@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using CashLoanTool.Helper;
 using NLog;
 using System.Data;
+using System.IO;
 
 namespace CashLoanTool.Indus
 {
@@ -73,16 +74,17 @@ namespace CashLoanTool.Indus
                 return StringCleaner.StripAccentsNSpecialChars(customer);
             }
         }
+        //TODO: fix this mess
         private CustomerInfo ToCustomer(IDbConnection connection, CommandDefinition cmd, out string status)
         {
             status = string.Empty;
             //TODO: test adding this field as Extention when have time...
             var dyn = connection.Query(cmd.CommandText);
-            if (dyn.Count() == 0 || dyn == null) return null;
+            if (!dyn.Any()) return null;
             status = dyn.Single().Status;
             if (string.IsNullOrEmpty(status))
             {
-                throw new InvalidOperationException("Customer status is null or empty!");
+                throw new InvalidDataException("Customer status is null!");
             }
             //Map to object
             var customer = connection.Query<CustomerInfo>(cmd);

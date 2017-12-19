@@ -44,7 +44,7 @@ namespace CashLoanTool.Controllers
             {
                 //Check if any request with this contract id exists
                 var rq = _context.Request.Where(r => string.Compare(r.LoanNo, contractId, true) == 0);
-                if(rq.Count() > 0)
+                if(rq.Any())
                 {
                     //Not valid
                     var rqId = rq.Single().RequestId;
@@ -53,7 +53,7 @@ namespace CashLoanTool.Controllers
                 //Get info from indus
                 var customerInfo = _indus.GetCustomerInfo(contractId.Trim(), out string status);
                 //Check if customer meet bussiness' requirement
-                if (CustomerValidator.Check(customerInfo, status, out var mess))    
+                if (CustomerValidator.CheckAndClean(customerInfo, contractId, status, out var mess, out var cleaned))    
                 {
                     //Valid
                     return Ok(new ResultWrapper() { Message = mess, Valid = true });
@@ -79,8 +79,9 @@ namespace CashLoanTool.Controllers
                 //Get customer info from indus & strip vietnamese accents
                 var customerInfo = _indus.GetCustomerInfo(contractId, out var status);
                 //double check incase client got modified intentionally
-                if (CustomerValidator.Check(customerInfo, status, out var mess))
+                if (CustomerValidator.CheckAndClean(customerInfo, contractId, status, out var mess, out var cleaned))
                 {
+                    if (cleaned == null) throw new InvalidProgramException();
                     var request = new Request()
                     {
                         LoanNo = contractId,
@@ -89,7 +90,7 @@ namespace CashLoanTool.Controllers
                         Username = currentUser,
                         Signature = "xxx" //Hardcoded as HDB request
                     };
-                    request.CustomerInfo.Add(customerInfo);
+                    request.CustomerInfo.Add(cleaned);
                     _context.Request.Add(request);
                     _context.SaveChanges();
                     //Request acccepted

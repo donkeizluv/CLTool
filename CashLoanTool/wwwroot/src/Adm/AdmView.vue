@@ -116,8 +116,8 @@
                         that.UpdatePagination();
                     })
                     .catch(function (error) {
-                        console.log(error);
-                        window.alert('Load dữ liệu request không thành công. Code: ' + error.response.status);
+                        that.$data.Status = 'Server exception. Code: ' + error.response.status;
+                        that.$data.StatusTextClass = "status-danger";
                     });
             },
             //Add new user handler
