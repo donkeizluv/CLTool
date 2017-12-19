@@ -6,6 +6,7 @@ using CashLoanTool.Helper;
 using NLog;
 using System.Diagnostics;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 
 namespace CashLoanTool.Jobs
 {
@@ -49,21 +50,29 @@ namespace CashLoanTool.Jobs
                     }
                     logger.Info("New requests count: " + newRequests.Count().ToString());
                     newRequests = newRequests.Include(r => r.CustomerInfo);
-                    foreach (var request in newRequests)
+                    //ToList to close read connection
+                    foreach (var request in newRequests.ToList())
                     {
                         //Update rq send time
                         request.RequestSendTime = DateTime.Now;
                         ////Must have customer info at this point
                         var hdssRq = Wrapper.ToHDSSRequest(request, request.CustomerInfo.Single(), out var guid);
+                        //Log raw rq
+                        logger.Info("Request:");
+                        logger.Info(JsonConvert.SerializeObject(hdssRq));
                         //If network fail, rq wont get update with response & guid
                         var result = HDB.Program.PostToHDBank(url, hdssRq);
                         var response = Wrapper.DeserializeResponse(result);
-
+                        //Log raw response
+                        logger.Info("Response:");
+                        logger.Info(result);
                         //Update GUID
                         request.Guid = guid;
                         //Add response to this request
                         request.Response.Add(response);
                         //try save each sucessful API calls
+                        //MultipleActiveResultSets=true;
+                        //To allow multiple operations in single connection
                         dbContext.SaveChanges();
                     }
                 }

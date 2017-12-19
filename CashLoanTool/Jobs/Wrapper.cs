@@ -14,8 +14,6 @@ namespace CashLoanTool.Jobs
 
         public static Response DeserializeResponse(string json)
         {
-            logger.Info("Response:");
-            logger.Info(json);
             var poco = JsonConvert.DeserializeObject<ResponsePOCO>(json);
             return new Response()
             {
@@ -27,6 +25,8 @@ namespace CashLoanTool.Jobs
                 ReceiveTime = DateTime.Now
             };
         }
+
+        //Substring here to match HDBs requirements
         public static HDSSRequest ToHDSSRequest(Request rq, CustomerInfo customerInfo, out string guid)
         {
             guid = Guid.NewGuid().ToString();
@@ -50,8 +50,7 @@ namespace CashLoanTool.Jobs
                 loanNo = rq.LoanNo,
                 signature = "xxx"
             };
-            logger.Info("Request:");
-            logger.Info(JsonConvert.SerializeObject(hdssRq));
+
             //logger.Info(hdssRq.requestId);
             //logger.Info(hdssRq.requestTime);
             //logger.Info(hdssRq.requestType);
@@ -67,7 +66,6 @@ namespace CashLoanTool.Jobs
             //logger.Info(hdssRq.signature);
             return hdssRq;
         }
-
     }
     public class ResponsePOCO
     {
