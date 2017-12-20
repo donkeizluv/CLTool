@@ -57,12 +57,7 @@ namespace CashLoanTool.Controllers
                 if (string.Compare(request.Username, currentUser, true) != 0) return Unauthorized();
                 //request has no response yet
                 if (!request.HasValidAcctNo) return BadRequest();
-                //this cant happen => log to server log
-                if (!request.HasCustomerInfo)
-                {
-                    logger.Error($"Rq id: {i} has valid response but no customer info");
-                    return BadRequest();
-                }
+
                 var customerInfo = request.CustomerInfo.Single();
                 var document = ArgreementMaker.
                     FillTemplate(customerInfo, request.AcctNo, EnviromentHelper.GetDocumentFullPath(TemplateName, DocumentFolder));

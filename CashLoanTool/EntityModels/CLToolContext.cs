@@ -1,6 +1,4 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace CashLoanTool.EntityModels
 {
@@ -11,15 +9,6 @@ namespace CashLoanTool.EntityModels
         public virtual DbSet<Request> Request { get; set; }
         public virtual DbSet<Response> Response { get; set; }
         public virtual DbSet<User> User { get; set; }
-
-        //preserve
-        public CLToolContext(DbContextOptions<CLToolContext> options) : base(options)
-        {
-        }
-        public CLToolContext(string conStr) : base(new DbContextOptionsBuilder().UseSqlServer(conStr).Options)
-        {
-        }
-        //preserve
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

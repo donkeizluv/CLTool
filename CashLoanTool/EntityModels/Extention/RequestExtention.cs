@@ -1,9 +1,11 @@
-﻿using System.Linq;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 
 namespace CashLoanTool.EntityModels
 {
     public partial class Request
     {
+        [NotMapped]
         public string IdentityCardName
         {
             get
@@ -11,6 +13,7 @@ namespace CashLoanTool.EntityModels
                 return CustomerInfo.First().FullName;
             }
         }
+        [NotMapped]
         public string RequestCreateTimeString
         {
             get
@@ -21,6 +24,7 @@ namespace CashLoanTool.EntityModels
         //This kind of check is unreliable, Response, info.count varies when call Include...
         //Fix this
         //This only works when 
+        [NotMapped]
         public bool HasValidAcctNo
         {
             //00: success
@@ -36,6 +40,7 @@ namespace CashLoanTool.EntityModels
                 return false;
             }
         }
+        [NotMapped]
         public string AcctNo
         {
             get
@@ -46,8 +51,10 @@ namespace CashLoanTool.EntityModels
             }
         }
         //Expose these for easier usage
-        public string IdentityCard => CustomerInfo.First().IdentityCard;
-        public string Phone => CustomerInfo.First().Phone;
+        [NotMapped]
+        public string IdentityCard => CustomerInfo.Single().IdentityCard;
+        [NotMapped]
+        public string Phone => CustomerInfo.Single().Phone;
         //Buggy
         //public bool HasResponse
         //{
@@ -56,6 +63,5 @@ namespace CashLoanTool.EntityModels
         //        return Response.Count > 0;
         //    }
         //}
-        public bool HasCustomerInfo => CustomerInfo.Count == 1;
     }
 }

@@ -28,15 +28,17 @@ tawd.szlname || ' ' || tawd.szmname || ' ' || tawd.szfname "FullName"
                   FROM MST_CITY MC
                  WHERE MC.SZCITYCODE = OAD.SZCITYCODE
                    AND MC.SZSTATECODE = OAD.SZSTATECODE) ADDRESS
-          FROM --tr_applicationworkdetails tawd,
+          FROM
                otheraddressdetails oad,
+               otheraddressheader oah,
                mst_city cit,
                mst_state stat
          WHERE 1=1
           -- AND TAWD.SZPARTYTYPE  = 'BORROWER'
            AND oad.iaddressseq   = TAWD.Iaddressseq
-           AND OAD.SZADDRESSTYPE = 'OF'
-           AND oad.isrlno = 1
+           and oad.iaddressseq = oah.iaddressseq
+           AND OAD.SZADDRESSTYPE = oah.szprefaddresstype
+           AND oad.isrlno = oah.IPREFADDRSRLNO 
            AND oad.szcitycode = cit.szcitycode(+)
            AND oad.szstatecode = cit.szstatecode(+)
            AND oad.szstatecode = stat.szstatecode(+)
@@ -96,14 +98,11 @@ FROM
            AND oad.szstatecode = stat.szstatecode(+)
            AND oad.szcountry = stat.szcountrycode(+)
        ) rs_addr
-       ,induslosr.GENERALCONDITIONMASTER gen
-  WHERE 1=1
-
-
-  AND tawd.szpartytype = 'BORROWER' 
-  AND gen.SZSYSTEMNAME = 'LOS'
-  AND gen.SZCONDITION = 'PROFESSION'
-  AND gen.szvalue = tawd.szprofession
-  AND rs_addr.iaddressseq = TAWD.Iaddressseq
-  AND tawd.szloanapplnno = '{param}'
- 
+       ,induslos.GENERALCONDITIONMASTER gen
+WHERE 1=1
+AND tawd.szpartytype = 'BORROWER' 
+AND gen.SZSYSTEMNAME = 'LOS'
+AND gen.SZCONDITION = 'PROFESSION'
+AND gen.szvalue = tawd.szprofession
+AND rs_addr.iaddressseq = TAWD.Iaddressseq
+AND tawd.szloanapplnno = '{param}'
