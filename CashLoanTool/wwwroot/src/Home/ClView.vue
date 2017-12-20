@@ -1,8 +1,10 @@
 <template id="cl-view">
     <div class="container">
-        <!--<request-modal v-if="ShowRequestModal"
-                       v-on:close="ShowRequestModal = false">
-        </request-modal>-->
+        <print-modal v-bind:issuers="Issuers"
+                       v-if="IsShowingPrintModal"
+                       v-on:close="IsShowingPrintModal = false"
+                     v-on:submitprint="SubmitPrint">
+        </print-modal>
         <div>
             <div class="well padding-sm">
                 <div v-bind:class="StatusTextClass">
@@ -48,7 +50,10 @@
                     <td class="table-td" nowrap><span class="table-cell-content">{{request.LoanNo}}</span></td>
                     <td class="table-td" nowrap><span class="table-cell-content">{{request.RequestCreateTimeString}}</span></td>
                     <td class="table-td" nowrap>
-                        <button v-show="request.HasValidAcctNo" v-on:click="GetDocument(request)" class="btn btn-link">
+                        <!--<button v-show="request.HasValidAcctNo" v-on:click="GetDocument(request)" class="btn btn-link">
+                            <span class="fa fa-print onepointfive-em"></span>
+                        </button>-->
+                        <button v-show="request.HasValidAcctNo" v-on:click="ShowPrintModal(request.RequestId)" class="btn btn-link">
                             <span class="fa fa-print onepointfive-em"></span>
                         </button>
                     </td>
@@ -78,14 +83,14 @@
     import axios from 'axios'
     import common from '../Common'
     import API from '../Home/API'
-    //import RequestModal from './RequestModal.vue'
+    import PrintModal from './PrintModal.vue'
 
     export default {
         name: 'CLView',
         template: '#cl-view',
         components: {
-            'page-nav': require('vuejs-paginate')
-            //'request-modal': RequestModal
+            'page-nav': require('vuejs-paginate'),
+            'print-modal': PrintModal
         },
         mounted: function () {
             this.Init();
@@ -109,9 +114,11 @@
                 Loading: false, //prevent clicking while loading new content
                 //listing, nav
 
-                ShowRequestModal: false,
+                IsShowingPrintModal: false,
+                PrintingId: '',
 
                 RequestListingModel: [],
+                Issuers: [],
                 Requests: [],
                 TotalRows: 0,
                 TotalPages: 0,
@@ -133,31 +140,26 @@
         methods: {
             //init app
             Init: function () {
+                //Load injected
                 //console.log('component init!');
                 var injectedModel = window.model;
-                if (!injectedModel) {
-                    //console.log("No injected model -> request new model");
-                    var page = this.$router.history.current.query.page;
-                    if (page < 1 || page == null || page == undefined) page = 1;
-                    var orderBy = this.$router.history.current.query.by;
-                    orderBy = orderBy == undefined ? 'AcctNo' : orderBy; //default
-                    var orderAsc = this.$router.history.current.query.asc;
-                    orderAsc = orderAsc == undefined ? true : orderAsc;
-                    //restores
-                    this.$data.OnPage = page;
-                    this.$data.OrderBy = orderBy;
-                    this.$data.OrderAsc = orderAsc;
-                    this.LoadRequests(this.GetCurrentRequestListAPI);
+                var issuers = window.Issuers;
+
+                if (!injectedModel || !issuers) {
+                    this.$data.StatusMessage = "Error loading app. Contact IT Dept.";
+                    this.$data.StatusTextClass = "status-danger";
+                    this.$data.Loading = true;
+                    return;
                 }
-                else {
-                    //console.log("Use injected model...");
-                    this.$data.OnPage = injectedModel.OnPage;
-                    this.$data.OrderBy = injectedModel.OrderBy;
-                    this.$data.OrderAsc = injectedModel.OrderAsc;
-                    this.$data.RequestListingModel = injectedModel;
-                    this.$data.Requests = injectedModel.Requests;
-                    this.UpdatePagination();
-                }
+
+                this.$data.OnPage = injectedModel.OnPage;
+                this.$data.OrderBy = injectedModel.OrderBy;
+                this.$data.OrderAsc = injectedModel.OrderAsc;
+                this.$data.RequestListingModel = injectedModel;
+                this.$data.Requests = injectedModel.Requests;
+
+                this.$data.Issuers = issuers;
+                this.UpdatePagination();
 
             },
             LoadRequests: function (url) {
@@ -185,12 +187,7 @@
                         //console.log("Failed to fetch model"); //display this somehow...
                     });
             },
-            //print document hanlder
-            GetDocument: function (request) {
-                var url = API.CurrentHost + API.GetDocumentURL.replace("{i}", request.RequestId);
-                //console.log(url);
-                window.open(url);
-            },
+
             //update paging
             UpdatePagination: function () {
                 this.$data.TotalPages = this.$data.RequestListingModel.TotalPages;
@@ -298,7 +295,20 @@
                         that.$data.Loading = false;
                     });
             },
-            //Send request handler
+            ShowPrintModal: function (requestId) {
+                this.$data.PrintingId = requestId;
+                this.$data.IsShowingPrintModal = true;
+            },
+            //print document hanlder
+            SubmitPrint: function (additionalInfo) {
+                var s64 = encodeURIComponent(btoa(this.$data.PrintingId + '-' + additionalInfo.Issuer + '-' + additionalInfo.POB));
+                var url = API.CurrentHost + API.GetDocumentURL
+                    .replace('{q}', s64);
+                console.log(url);
+                this.$data.IsShowingPrintModal = false;
+                window.open(url);
+            },
+            //Send request clicked handler
             SendRequestClicked: function () {
                 var that = this;
                 var url = API.SendRequestURL;

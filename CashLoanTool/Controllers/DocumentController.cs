@@ -11,6 +11,9 @@ using System.Security.Claims;
 using CashLoanTool.DocumentUltility;
 using NLog;
 using CashLoanTool.Filters;
+using System;
+using CashLoanTool.ViewModels;
+using System.Text;
 
 namespace CashLoanTool.Controllers
 {
@@ -44,8 +47,14 @@ namespace CashLoanTool.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetDocument([FromQuery]int i)
+        public IActionResult GetDocument([FromQuery]string q = "")
         {
+            if (string.IsNullOrEmpty(q)) return BadRequest();
+            if (!Decode64(q, out int i, out int iss, out int p))
+                return BadRequest();
+            if (!GetIssuer(iss, p, out var issuer, out var pob))
+                return BadRequest();
+
             using (_context)
             {
                 //check valid
@@ -59,8 +68,9 @@ namespace CashLoanTool.Controllers
                 if (!request.HasValidAcctNo) return BadRequest();
 
                 var customerInfo = request.CustomerInfo.Single();
+                var templatePath = EnviromentHelper.GetDocumentFullPath(TemplateName, DocumentFolder);
                 var document = ArgreementMaker.
-                    FillTemplate(customerInfo, request.AcctNo, EnviromentHelper.GetDocumentFullPath(TemplateName, DocumentFolder));
+                    FillTemplate(customerInfo, request.AcctNo, issuer, pob, templatePath);
                 var responseStream = new MemoryStream();
                 document.Save(responseStream, SaveOptions.PdfDefault);
                 //to return file use File()
@@ -68,6 +78,45 @@ namespace CashLoanTool.Controllers
 
                 //Download file
                 //return File(responseStream, "application/pdf", $"{request.LoanNo}.pdf");
+            }
+        }
+        private bool Decode64(string base64, out int id, out int iss, out int p)
+        {
+            id = -1;
+            iss = -1;
+            p = -1;
+            if (string.IsNullOrEmpty(base64)) return false;
+            var data = Convert.FromBase64String(base64);
+            string decodedString = Encoding.UTF8.GetString(data);
+            var splited = decodedString.Split('-');
+            //exp 1-2-3
+            if (splited.Count() != 3) return false;
+
+            try
+            {
+                id = int.Parse(splited[0]);
+                iss = int.Parse(splited[1]);
+                p = int.Parse(splited[2]);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+            return true;
+        }
+        private bool GetIssuer(int iss, int p, out string issuer, out string pob)
+        {
+            issuer = string.Empty;
+            pob = string.Empty;
+            try
+            {
+                issuer = IssuerList.Issuers[iss];
+                pob = IssuerList.Issuers[p];
+                return true;
+            }
+            catch (IndexOutOfRangeException)
+            {
+                return false;
             }
         }
     }

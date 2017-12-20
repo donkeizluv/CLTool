@@ -8,18 +8,24 @@ namespace CashLoanTool.DocumentUltility
     public static class ArgreementMaker
     {
         public const string DateFormat = "dd/MM/yyyy";
-        public static DocumentModel FillTemplate(CustomerInfo customer, string acctNo, string templatePath)
+        public static DocumentModel FillTemplate(CustomerInfo customer, string acctNo, string issuer, string pob, string templatePath)
         {
             var document = DocumentModel.Load(templatePath, DocxLoadOptions.DocxDefault);
             // Find and replace text.
             document.Content.Replace("{name}", customer.FullName);
-            document.Content.Replace("{pob}", customer.Pob); //Indus cant supply this
+            //document.Content.Replace("{pob}", customer.Pob); //Indus cant supply this
+            document.Content.Replace("{pob}", pob);
             document.Content.Replace("{id}", customer.IdentityCard);
             document.Content.Replace("{id_date}", customer.IssueDate.ToString(DateFormat));
-            document.Content.Replace("{id_issuer}", customer.Issuer); //Indus cant supply this
+            //document.Content.Replace("{id_issuer}", customer.Issuer); //Indus cant supply this
+            document.Content.Replace("{id_issuer}", issuer);
             document.Content.Replace("{dob}", customer.Dob.ToString(DateFormat));
             document.Content.Replace("{addr}", (customer.HomeAddress??string.Empty).Trim());
-            document.Content.Replace("{ct_addr}", (customer.ContactAddress??string.Empty).Trim());
+            //IF no CT info then use RS instead
+            string ctInfo = customer.ContactAddress ?? string.Empty;
+            if (string.IsNullOrEmpty(customer.ContactAddress))
+                ctInfo = customer.HomeAddress;
+            document.Content.Replace("{ct_addr}", ctInfo);
             document.Content.Replace("{occu}", (customer.Professional??string.Empty).Trim());
             document.Content.Replace("{pos}", (customer.Position??string.Empty).Trim());
             document.Content.Replace("{nat}", customer.Nationality);

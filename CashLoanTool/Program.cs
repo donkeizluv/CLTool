@@ -15,7 +15,7 @@ namespace CashLoanTool
         {
             string appSetting = "appsettings.json";
 #if DEBUG
-            appSetting = "appsettings_s.json";
+            appSetting = "private_appsettings.json";
 
 #endif
             return WebHost.CreateDefaultBuilder(args)

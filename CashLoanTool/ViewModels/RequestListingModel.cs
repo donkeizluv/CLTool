@@ -4,6 +4,14 @@ namespace CashLoanTool.ViewModels
 {
     public class RequestListingModel
     {
+        //public List<string> IssuersList
+        //{
+        //    get
+        //    {
+        //        return IssuerList.Issuers;
+        //    }
+        //}
+
         public List<Request> Requests { get; set; }
         public static int ItemPerPage { get; set; } = 10;
         //update these every time add record

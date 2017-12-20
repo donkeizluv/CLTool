@@ -8,6 +8,7 @@ using CashLoanTool.EntityModels;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Caching.Memory;
 using CashLoanTool.Filters;
+using CashLoanTool.ViewModels;
 
 namespace CashLoanTool.Controllers
 {
@@ -38,6 +39,7 @@ namespace CashLoanTool.Controllers
                 var currentUser = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
                 //default model to inject to view
                 var model = RequestListingController.GetModel(_context, currentUser, page, by, asc);
+                ViewData[nameof(IssuerList.Issuers)] = IssuerList.Issuers;
                 return View(model);
             }
         }
