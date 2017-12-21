@@ -30,8 +30,8 @@
                     </td>
                 </tr>
                 <tr>
-                    <td><h5>Request Số</h5></td>
-                    <td><button class="btn btn-link" v-on:click="OrderByClicked('AcctNo')"><span v-html="DisplayOrderButtonStates('AcctNo')"></span>Số Tk.</button></td>
+                    <td><button class="btn btn-link" v-on:click="OrderByClicked('RequestId')"><span v-html="DisplayOrderButtonStates('RequestId')"></span>Request Số</button></td>
+                    <td><h5>Số Tk.</h5></td>
                     <td><h5>Tên</h5></td>
                     <td><h5>CMND</h5></td>
                     <td><h5>SĐT</h5></td>
@@ -109,7 +109,7 @@
                 ContractId: '',
                 StatusMessage: '',
                 StatusTextClass: '',
-                OrderBy: 'AcctNo', //default
+                OrderBy: 'RequestId', //default
                 OrderAsc: true,
                 Loading: false, //prevent clicking while loading new content
                 //listing, nav

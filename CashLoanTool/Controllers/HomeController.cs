@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Caching.Memory;
 using CashLoanTool.Filters;
 using CashLoanTool.ViewModels;
+using System.Threading.Tasks;
 
 namespace CashLoanTool.Controllers
 {
@@ -27,7 +28,7 @@ namespace CashLoanTool.Controllers
 
         [HttpGet]
         [Authorize]
-        public IActionResult Index([FromQuery] int page = 1, [FromQuery] string by = "AcctNo", [FromQuery] bool asc = true)
+        public async Task<IActionResult> Index([FromQuery] int page = 1, [FromQuery] string by = "RequestId", [FromQuery] bool asc = true)
         {
             //string role = string.Empty;
             //var claim = HttpContext.User.FindFirst(ClaimTypes.Role);
@@ -38,7 +39,7 @@ namespace CashLoanTool.Controllers
             {
                 var currentUser = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
                 //default model to inject to view
-                var model = RequestListingController.GetModel(_context, currentUser, page, by, asc);
+                var model = await RequestListingController.GetModel(_context, currentUser, page, by, asc);
                 ViewData[nameof(IssuerList.Issuers)] = IssuerList.Issuers;
                 return View(model);
             }

@@ -14,6 +14,7 @@ using CashLoanTool.Filters;
 using System;
 using CashLoanTool.ViewModels;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace CashLoanTool.Controllers
 {
@@ -47,7 +48,7 @@ namespace CashLoanTool.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetDocument([FromQuery]string q = "")
+        public async Task<IActionResult> GetDocument([FromQuery]string q = "")
         {
             if (string.IsNullOrEmpty(q)) return BadRequest();
             if (!Decode64(q, out int i, out int iss, out int p))
@@ -59,7 +60,7 @@ namespace CashLoanTool.Controllers
             {
                 //check valid
                 var currentUser = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
-                var request = _context.Request.Where(r => r.RequestId == i).Include(r => r.CustomerInfo).Include(r => r.Response).FirstOrDefault();
+                var request = await _context.Request.Where(r => r.RequestId == i).Include(r => r.CustomerInfo).Include(r => r.Response).FirstOrDefaultAsync();
                 //invalid request id
                 if (request == null) return BadRequest();
                 //user can only print own request

@@ -17,6 +17,7 @@ namespace CashLoanTool.Jobs
         private static Logger logger = LogManager.GetCurrentClassLogger();
 
         //Unhandle exception wont crash app
+        //No point using async here...
         public void Execute(IJobExecutionContext context)
         {
             //logger.Info("Execute job....");

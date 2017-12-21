@@ -10,7 +10,7 @@ namespace CashLoanTool.EntityModels
         {
             get
             {
-                return CustomerInfo.First().FullName;
+                return CustomerInfo.Single().FullName;
             }
         }
         [NotMapped]
@@ -46,8 +46,8 @@ namespace CashLoanTool.EntityModels
             get
             {
                 var responseOK = Response.Where(r => string.Compare(r.ResponseCode, "00") == 0 || string.Compare(r.ResponseCode, "09") == 0);
-                if (responseOK.FirstOrDefault() == null) return string.Empty;
-                return responseOK.First().AcctNo;
+                if (responseOK.SingleOrDefault() == null) return string.Empty;
+                return responseOK.Single().AcctNo;
             }
         }
         //Expose these for easier usage

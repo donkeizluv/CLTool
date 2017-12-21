@@ -98,7 +98,7 @@ FROM
            AND oad.szstatecode = stat.szstatecode(+)
            AND oad.szcountry = stat.szcountrycode(+)
        ) rs_addr
-       ,induslos.GENERALCONDITIONMASTER gen
+       ,induslosr.GENERALCONDITIONMASTER gen
 WHERE 1=1
 AND tawd.szpartytype = 'BORROWER' 
 AND gen.SZSYSTEMNAME = 'LOS'

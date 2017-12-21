@@ -1,14 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using CashLoanTool.EntityModels;
 using CashLoanTool.Filters;
 using CashLoanTool.Indus;
 using CashLoanTool.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using NLog;
 
@@ -30,16 +31,16 @@ namespace CashLoanTool.Controllers
             _indus = indusAdapter;
         }
         [HttpGet]
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             using (_context)
             {
-                var model = GetModel(_context, 1);
+                var model = await GetModel(_context, 1);
                 return View(model);
             }
         }
         [HttpPost]
-        public IActionResult AddNewUser([FromBody] PostWrapper post)
+        public async Task<IActionResult> AddNewUser([FromBody] PostWrapper post)
         {
             var username = post.Post;
             if (string.IsNullOrEmpty(username)|| username.Length > 50 || Regex.IsMatch(username, @"[^0-9a-zA-Z-.]+"))
@@ -47,7 +48,7 @@ namespace CashLoanTool.Controllers
             var currentUser = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
             using (_context)
             {
-                if (_context.User.Any(u => string.Compare(u.Username, username, true) == 0))
+                if (await _context.User.AnyAsync(u => u.Username == username))
                     return Ok(new ResultWrapper() { Message = "Username is already exist!", Valid = false });
                 var user = new User()
                 {
@@ -57,38 +58,31 @@ namespace CashLoanTool.Controllers
                     Type = "User"
                 };
                 _context.User.Add(user);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             }
             return Ok(new ResultWrapper() { Message = $"Sucessfully added: {username}", Valid = true });
         }
         [HttpGet]
-        public IActionResult FetchModel([FromQuery] int page = 1)
+        public async Task<IActionResult> FetchModel([FromQuery] int page = 1)
         {
             using (_context)
             {
-                return Ok(GetModel(_context, page));
+                return Ok(await GetModel(_context, page));
             }
         }
-        private static AdmModel GetModel(CLToolContext context, int pageNum)
-        {
-            var model = new AdmModel
-            {
-                Users = GetUsers(context, out var totalRows, pageNum),
-                OnPage = pageNum
-            };
-            model.UpdatePagination(totalRows);
-            return model;
-        }
-        private static List<User> GetUsers(CLToolContext context, out int totalRows, int pageNum)
+        private static async Task<AdmModel> GetModel(CLToolContext context, int pageNum)
         {
             int getPage = pageNum < 1 ? 1 : pageNum;
             int excludedRows = (getPage - 1) * RequestListingModel.ItemPerPage;
-
-            var query = context.User;
-            totalRows = query.Count();
-            return query.OrderBy(u => u.Username)
-                 .Skip(excludedRows)
-                 .Take(RequestListingModel.ItemPerPage).ToList();
+            var model = new AdmModel
+            {
+                Users = await context.User.OrderBy(u => u.Username)
+                             .Skip(excludedRows)
+                             .Take(RequestListingModel.ItemPerPage).ToListAsync(),
+                OnPage = pageNum
+            };
+            model.UpdatePagination(await context.User.CountAsync());
+            return model;
         }
     }
 }

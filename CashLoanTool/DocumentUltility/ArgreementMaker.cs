@@ -20,14 +20,14 @@ namespace CashLoanTool.DocumentUltility
             //document.Content.Replace("{id_issuer}", customer.Issuer); //Indus cant supply this
             document.Content.Replace("{id_issuer}", issuer);
             document.Content.Replace("{dob}", customer.Dob.ToString(DateFormat));
-            document.Content.Replace("{addr}", (customer.HomeAddress??string.Empty).Trim());
+            document.Content.Replace("{addr}", (customer.HomeAddress??string.Empty));
             //IF no CT info then use RS instead
             string ctInfo = customer.ContactAddress ?? string.Empty;
             if (string.IsNullOrEmpty(customer.ContactAddress))
                 ctInfo = customer.HomeAddress;
             document.Content.Replace("{ct_addr}", ctInfo);
-            document.Content.Replace("{occu}", (customer.Professional??string.Empty).Trim());
-            document.Content.Replace("{pos}", (customer.Position??string.Empty).Trim());
+            document.Content.Replace("{occu}", (customer.Professional??string.Empty));
+            document.Content.Replace("{pos}", (customer.Position??string.Empty));
             document.Content.Replace("{nat}", customer.Nationality);
             document.Content.Replace("{phone}", customer.Phone);
             document.Content.Replace("{acct_no}", acctNo);
