@@ -15,6 +15,7 @@ using System.Reflection;
 using System;
 using System.IO;
 using CashLoanTool.Jobs;
+using Microsoft.AspNetCore.ResponseCompression;
 
 namespace CashLoanTool
 {
@@ -74,6 +75,10 @@ namespace CashLoanTool
                     //bc url query doesnt play well with form submit in Account/DoLogin
                     options.ReturnUrlParameter = "returnUrl"; 
                 });
+            //Compression
+            services.Configure<GzipCompressionProviderOptions>(options => options.Level = System.IO.Compression.CompressionLevel.Optimal);
+            services.AddResponseCompression();
+          
             //enforce SSL
             //services.Configure<MvcOptions>(options =>
             //{
@@ -110,6 +115,7 @@ namespace CashLoanTool
             //    app.UseExceptionHandler("/Home/Error");
             //}
 
+            app.UseResponseCompression();
             app.UseDeveloperExceptionPage();
             app.UseBrowserLink();
             app.UseStaticFiles();
