@@ -1,8 +1,10 @@
 ﻿using CashLoanTool.EntityModels;
+using CashLoanTool.Jobs.RSA;
 using HDB;
 using Newtonsoft.Json;
 using NLog;
 using System;
+using System.Text;
 
 namespace CashLoanTool.Jobs
 {
@@ -27,15 +29,14 @@ namespace CashLoanTool.Jobs
         }
 
         //Substring here to match HDBs requirements
-        public static HDSSRequest ToHDSSRequest(Request rq, CustomerInfo customerInfo, out string guid)
+        public static HDSSRequest ToHDSSRequest(Request rq, CustomerInfo customerInfo)
         {
-            guid = Guid.NewGuid().ToString();
             var hdssRq = new HDSSRequest()
             {
                 //TODO:
                 //Home or Contact address is must?
                 //interchangeable?
-                requestId = guid, //Hardcoded as HDB requested TODO: store this
+                requestId = Guid.NewGuid().ToString(), //Hardcoded as HDB requested TODO: store this
                 requestTime = DateTime.Now.ToString(RequestTimeFormat), //Hardcoded as HDB requested
                 requestType = rq.RequestType,
                 identityCard = customerInfo.IdentityCard,
@@ -47,10 +48,10 @@ namespace CashLoanTool.Jobs
                 issuePlace = "hdsaison",
                 issueDate = customerInfo.IssueDate.ToString(DOBDateFormat),
                 phone = customerInfo.Phone,
-                loanNo = rq.LoanNo,
-                signature = "xxx"
+                loanNo = rq.LoanNo
+                //signature = "xxx"
             };
-
+            hdssRq.signature = CreateSignature(hdssRq); ;
             //logger.Info(hdssRq.requestId);
             //logger.Info(hdssRq.requestTime);
             //logger.Info(hdssRq.requestType);
@@ -66,7 +67,21 @@ namespace CashLoanTool.Jobs
             //logger.Info(hdssRq.signature);
             return hdssRq;
         }
+        private static string CreateSignature(HDSSRequest hdssRq)
+        {
+            var concatBuilder = new StringBuilder();
+            concatBuilder.Append(hdssRq.requestId).Append(hdssRq.requestTime);
+            concatBuilder.Append(hdssRq.requestType).Append(hdssRq.identityCard);
+            concatBuilder.Append(hdssRq.identityCardName).Append(hdssRq.phone);
+            concatBuilder.Append(hdssRq.loanNo).Append(RSAHelper.Salt);
+            //var hash = RSAHelper.Hash($"{hdssRq.requestId}" +
+            //    $"{hdssRq.requestTime}{hdssRq.requestType}" +
+            //    $"{hdssRq.identityCard}{hdssRq.identityCardName}" +
+            //    $"{hdssRq.phone}{hdssRq.loanNo}{RSAHelper.SecretKey}");
+            return RSAHelper.SignData(RSAHelper.Hash(concatBuilder.ToString()));
+        }
     }
+
     public class ResponsePOCO
     {
         public string ResponseCode { get; set; }

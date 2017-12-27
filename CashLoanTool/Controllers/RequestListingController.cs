@@ -83,14 +83,14 @@ namespace CashLoanTool.Controllers
                 //double check incase client got modified intentionally
                 if (CustomerValidator.CheckAndClean(customerInfo, contractId, out var mess, out var cleaned))
                 {
-                    if (cleaned == null) throw new InvalidProgramException();
+                    if (cleaned == null) throw new InvalidOperationException();
                     var request = new Request()
                     {
                         LoanNo = contractId,
                         RequestCreateTime = DateTime.Now,
                         RequestType = "OpenAccount", //Hardcoded as HDB request
-                        Username = currentUser,
-                        Signature = "xxx" //Hardcoded as HDB request
+                        Username = currentUser
+                        //Signature = "xxx" //Hardcoded as HDB request
                     };
                     request.CustomerInfo.Add(cleaned);
                     _context.Request.Add(request);

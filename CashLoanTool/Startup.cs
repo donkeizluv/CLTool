@@ -16,6 +16,7 @@ using System;
 using System.IO;
 using CashLoanTool.Jobs;
 using Microsoft.AspNetCore.ResponseCompression;
+using CashLoanTool.Jobs.RSA;
 
 namespace CashLoanTool
 {
@@ -35,10 +36,13 @@ namespace CashLoanTool
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-            //Register the lib
+            //Register the lib & other stuff
             ComponentInfo.SetLicense(GemboxDocumentKey);
-#if !DEBUG
             APIScheduler.StartQuartz(configuration);
+            RSAHelper.ReadRSAKeys(configuration);
+            EnviromentHelper.EnvStr = Configuration.GetSection("General").GetValue<string>("EnvStr");
+#if DEBUG
+
 #endif
         }
 
@@ -98,8 +102,6 @@ namespace CashLoanTool
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            EnviromentHelper.RootPath = env.ContentRootPath;
-            EnviromentHelper.EnvStr = Configuration.GetSection("General").GetValue<string>("EnvStr");
             app.UseAuthentication();
             //enforce SSL
             //app.UseRewriter(new RewriteOptions().AddRedirectToHttps((int)HttpStatusCode.Redirect, 44395));

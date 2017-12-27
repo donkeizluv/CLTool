@@ -9,10 +9,9 @@ namespace CashLoanTool.Helper
         public static string EnvStr = string.Empty;
         public static string ConnectionStringKey = "DbConnectionString";
         public static string ApiUrlKey = "HDB_API";
-        public static string RootPath { get; set; }
         public static string GetDocumentFullPath(string fileName, string docFolder)
         {
-            return $"{RootPath}\\{docFolder}\\{fileName}";
+            return $"{Program.ExeDir}\\{docFolder}\\{fileName}";
         }
         
         public static void LogException(Exception ex, Logger logger)
