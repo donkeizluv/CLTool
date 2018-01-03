@@ -26,7 +26,7 @@ namespace CashLoanTool.BussinessRules
         //loanNo = rq.LoanNo,
         //signature = "xxx"
 
-
+        //TODO: make this config
         public const string AcceptStatus = "Contract Printing";
         public static bool CheckAndClean(CustomerInfo customer, string contractId, out string message, out CustomerInfo cleaned)
         {

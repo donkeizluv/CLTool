@@ -11,20 +11,21 @@
 *.userprefs
 *.xlsx
 *.xls
-*private_
+
 
 #private stuff
-[Pp]rintDocument
-[Dd]ocumentTemplate
+*.doc
+*.docx
+*.sqlgen
+Keys/
+/appsettings.json
 
-
-#my def
+#frontend build
 **/wwwroot/lib/*
 #ignore min dist
 **/wwwroot/dist/*
 **/wwwroot/js/lib/*
-*.sqlgen
-[Oo]racleClient
+
 
 # Build results
 [Dd]ebug/

@@ -1,4 +1,5 @@
 ﻿using CashLoanTool.Jobs.RSA;
+using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 
@@ -7,6 +8,7 @@ namespace CashLoanTool.EntityModels
     public partial class Response
     {
         [NotMapped]
+        [JsonIgnore]
         public string SignatureComposition
         {
             get
@@ -19,6 +21,7 @@ namespace CashLoanTool.EntityModels
         }
 
         [NotMapped]
+        [JsonIgnore]
         public string VerificationHash
         {
             get
