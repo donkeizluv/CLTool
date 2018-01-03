@@ -1,12 +1,11 @@
-﻿using CashLoanTool.Helper;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using NLog;
 using System;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace CashLoanTool.Jobs.RSA
+namespace CashLoanTool.Helper
 {
     public static class RSAHelper
     {

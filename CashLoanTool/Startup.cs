@@ -16,7 +16,6 @@ using System;
 using System.IO;
 using CashLoanTool.Jobs;
 using Microsoft.AspNetCore.ResponseCompression;
-using CashLoanTool.Jobs.RSA;
 
 namespace CashLoanTool
 {

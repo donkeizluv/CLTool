@@ -1,4 +1,4 @@
-﻿using CashLoanTool.Jobs.RSA;
+﻿using CashLoanTool.Helper;
 using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;

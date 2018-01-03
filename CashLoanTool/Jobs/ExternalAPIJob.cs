@@ -4,10 +4,8 @@ using System.Linq;
 using CashLoanTool.EntityModels;
 using CashLoanTool.Helper;
 using NLog;
-using System.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using CashLoanTool.Jobs.RSA;
 
 namespace CashLoanTool.Jobs
 {

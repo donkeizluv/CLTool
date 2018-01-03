@@ -42,7 +42,7 @@ namespace CashLoanTool.Controllers
         [HttpPost]
         public async Task<IActionResult> AddNewUser([FromBody] PostWrapper post)
         {
-            var username = post.Post;
+            var username = post?.Post.ToLower() ?? string.Empty;
             if (string.IsNullOrEmpty(username)|| username.Length > 50 || Regex.IsMatch(username, @"[^0-9a-zA-Z-.]+"))
                 return BadRequest();
             var currentUser = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
