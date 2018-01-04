@@ -2,14 +2,13 @@
 using System.Net;
 using CashLoanTool.EntityModels;
 using Oracle.ManagedDataAccess.Client;
-using System.Text.RegularExpressions;
 using Dapper;
 using System.Linq;
-using Microsoft.EntityFrameworkCore;
 using CashLoanTool.Helper;
 using NLog;
 using System.Data;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace CashLoanTool.Indus
 {
@@ -56,29 +55,27 @@ namespace CashLoanTool.Indus
                 .Replace("{sid}", SID);
         }
 
-        public CustomerInfo GetCustomerInfo(string contractId)
+        public async Task<CustomerInfo> GetCustomerInfo(string contractId)
         {
-            if (string.IsNullOrEmpty(contractId))
-                throw new ArgumentNullException();
-
             if (string.IsNullOrEmpty(Query))
                 throw new InvalidOperationException("Query is not set");
-
+            if (string.IsNullOrEmpty(contractId))
+                throw new ArgumentNullException();
             using (var connection = new OracleConnection())
             {
                 connection.ConnectionString = GetConnectionString();
-                connection.Open();
-                var customer =  ToCustomer(connection, new CommandDefinition(GetQuery(contractId)));
+                await connection.OpenAsync();
+                var customer =  await GetCustomer(connection, new CommandDefinition(GetQuery(contractId)));
                 if (customer == null) return null; //Cant find customer
                 //Return customer with stripped vietnamese accents
                 return StringCleaner.StripAccentsNSpecialChars(customer);
             }
         }
         //TODO: fix this mess
-        private CustomerInfo ToCustomer(IDbConnection connection, CommandDefinition cmd)
+        private async Task<CustomerInfo> GetCustomer(IDbConnection connection, CommandDefinition cmd)
         {
             //Map to object
-            var customer = connection.Query<CustomerInfo>(cmd);
+            var customer = await connection.QueryAsync<CustomerInfo>(cmd);
             if (!customer.Any()) return null;
             var cus = customer.Single();
             if (string.IsNullOrEmpty(cus.Status))

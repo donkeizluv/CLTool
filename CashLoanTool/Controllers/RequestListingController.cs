@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
-//using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using CashLoanTool.BussinessRules;
@@ -13,7 +10,6 @@ using CashLoanTool.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Extensions;
 using Microsoft.Extensions.Configuration;
 using NLog;
 
@@ -53,7 +49,7 @@ namespace CashLoanTool.Controllers
                     return Ok(new ResultWrapper() { Message = $"Khách hàng này đã request với ID: {rq.RequestId}" , Valid = false });
                 }
                 //Get info from indus
-                var customerInfo = _indus.GetCustomerInfo(contractId.Trim());
+                var customerInfo = await _indus.GetCustomerInfo(contractId.Trim());
                 //Check if customer meet bussiness' requirement
                 if (CustomerValidator.CheckAndClean(customerInfo, contractId, out var mess, out var cleaned))    
                 {
@@ -79,7 +75,7 @@ namespace CashLoanTool.Controllers
             using (_context)
             {
                 //Get customer info from indus & strip vietnamese accents
-                var customerInfo = _indus.GetCustomerInfo(contractId);
+                var customerInfo = await _indus.GetCustomerInfo(contractId);
                 //double check incase client got modified intentionally
                 if (CustomerValidator.CheckAndClean(customerInfo, contractId, out var mess, out var cleaned))
                 {

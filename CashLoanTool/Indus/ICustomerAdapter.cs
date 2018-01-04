@@ -1,10 +1,12 @@
 ﻿using CashLoanTool.EntityModels;
+using System.Threading.Tasks;
 
 namespace CashLoanTool.Indus
 {
     public interface ICustomerAdapter
     {
         string GetConnectionString();
-        CustomerInfo GetCustomerInfo(string contractId);
+        Task<CustomerInfo> GetCustomerInfo(string contractId);
+        //CustomerInfo GetCustomerInfo(string contractId);
     }
 }

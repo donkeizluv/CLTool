@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using CashLoanTool.EntityModels;
 
@@ -14,7 +12,7 @@ namespace CashLoanTool.Indus
         }
 
         private static Random RND = new Random();
-        public CustomerInfo GetCustomerInfo(string contractId)
+        public async Task<CustomerInfo> GetCustomerInfo(string contractId)
         {
             return new CustomerInfo()
             {
