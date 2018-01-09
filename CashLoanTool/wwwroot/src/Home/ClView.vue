@@ -35,8 +35,10 @@
                     <td><h5>Tên</h5></td>
                     <td><h5>CMND</h5></td>
                     <td><h5>SĐT</h5></td>
+
                     <td><h5>Số HĐ</h5></td>
                     <td><button class="btn btn-link" v-on:click="OrderByClicked('RequestCreateTime')"><span v-html="DisplayOrderButtonStates('RequestCreateTime')"></span>Ngày tạo</button></td>
+                    <td><h5>Người tạo</h5></td>
                     <td><h5>In</h5></td>
                 </tr>
             </thead>
@@ -49,10 +51,11 @@
                     <td class="table-td" nowrap><span class="table-cell-content">{{request.Phone}}</span></td>
                     <td class="table-td" nowrap><span class="table-cell-content">{{request.LoanNo}}</span></td>
                     <td class="table-td" nowrap><span class="table-cell-content">{{request.RequestCreateTimeString}}</span></td>
+                    <td class="table-td" nowrap><span class="table-cell-content">{{request.Username}}</span></td>
                     <td class="table-td" nowrap>
                         <!--<button v-show="request.HasValidAcctNo" v-on:click="GetDocument(request)" class="btn btn-link">
-                            <span class="fa fa-print onepointfive-em"></span>
-                        </button>-->
+            <span class="fa fa-print onepointfive-em"></span>
+        </button>-->
                         <button v-show="request.HasValidAcctNo" v-on:click="ShowPrintModal(request.RequestId)" class="btn btn-link">
                             <span class="fa fa-print onepointfive-em"></span>
                         </button>

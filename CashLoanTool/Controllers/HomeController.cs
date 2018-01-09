@@ -37,9 +37,9 @@ namespace CashLoanTool.Controllers
             //HttpContext.Response.Cookies.Append("role", role);
             using (_context)
             {
-                var currentUser = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
+                //var currentUser = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
                 //default model to inject to view
-                var model = await RequestListingController.GetModel(_context, currentUser, page, by, asc);
+                var model = await RequestListingController.GetModel(_context, page, by, asc);
                 ViewData[nameof(IssuerList.Issuers)] = IssuerList.Issuers;
                 return View(model);
             }

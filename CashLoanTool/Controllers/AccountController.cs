@@ -85,7 +85,7 @@ namespace CashLoanTool.Controllers
             if (loginLevel == LoginResult.NotActive) return NotActive();
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, userName, ClaimValueTypes.String, Issuer),
+                new Claim(ClaimTypes.Name, userName.ToLower(), ClaimValueTypes.String, Issuer),
                 new Claim(ClaimTypes.Role, loginLevel.ToString(), ClaimValueTypes.String, Issuer)
             };
             var userIdentity = new ClaimsIdentity("UserCred");

@@ -109,8 +109,8 @@ namespace CashLoanTool.Controllers
         {
             using (_context)
             {
-                var currentUser = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
-                return Ok(await GetModel(_context, currentUser, page, by, asc));
+                //var currentUser = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
+                return Ok(await GetModel(_context, page, by, asc));
             }
         }
         private static IOrderedQueryable<Request> OrderTranslater(IQueryable<Request> query, string orderBy, bool asc)
@@ -130,7 +130,31 @@ namespace CashLoanTool.Controllers
                     return query.OrderBy(r => r.RequestId);
             }
         }
-        internal static async Task<RequestListingModel> GetModel(CLToolContext context, string userName, int pageNum, string orderBy, bool asc)
+        internal static async Task<RequestListingModel> GetModel(CLToolContext context, int pageNum, string orderBy, bool asc)
+        {
+            int getPage = pageNum < 1 ? 1 : pageNum;
+            int excludedRows = (getPage - 1) * RequestListingModel.ItemPerPage;
+            //var user = context.User.SingleOrDefaultAsync(u => u.Username == userName);
+            //User can only see own requests
+            var query = context.Request;
+            var totalRows = await query.CountAsync();
+            var ordered = OrderTranslater(query, orderBy, asc);
+            var model = new RequestListingModel
+            {
+                Requests = await ordered
+                                .Skip(excludedRows)
+                                .Take(RequestListingModel.ItemPerPage)
+                                .Include(r => r.CustomerInfo)
+                                .Include(r => r.Response)
+                                .ToListAsync(),
+                OnPage = pageNum,
+                OrderAsc = asc,
+                OrderBy = orderBy,
+            };
+            model.UpdatePagination(totalRows);
+            return model;
+        }
+        internal static async Task<RequestListingModel> GetModelByUser(CLToolContext context, string userName, int pageNum, string orderBy, bool asc)
         {
             int getPage = pageNum < 1 ? 1 : pageNum;
             int excludedRows = (getPage - 1) * RequestListingModel.ItemPerPage;

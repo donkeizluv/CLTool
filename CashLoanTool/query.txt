@@ -3,7 +3,7 @@ tawd.szlname || ' ' || tawd.szmname || ' ' || tawd.szfname "FullName"
 ,tawd.dtdateofbirth "DOB"
 ,'' "POB"
 ,tawd.szssn "IdentityCard"
-,nvl(tawd.sznationality,'VIETNAM') "Nationality"
+,nvl(tawd.sznationality,'Vietnam') "Nationality"
 ,tawd.dtregistration "IssueDate"
 ,'' "Issuer"
 ,tawd.csex "Gender"
@@ -14,25 +14,25 @@ tawd.szlname || ' ' || tawd.szmname || ' ' || tawd.szfname "FullName"
                     TRIM(OAD.SZSHORTADDRESS2) || ',',
                     '') ||
                NVL2(NVL((SELECT MD.SZDESC
-                          FROM MST_DISTRICT MD
+                          FROM MST_DISTRICT@GLM_LOS MD
                          WHERE MD.SZCITYCODE = OAD.SZCITYCODE
                            AND MD.SZDISTRICTCODE = OAD.SZDISTRICTCODE),
                         OAD.SZSHORTADDRESS1),
                     NVL((SELECT MD.SZDESC
-                          FROM MST_DISTRICT MD
+                          FROM MST_DISTRICT@GLM_LOS MD
                          WHERE MD.SZCITYCODE = OAD.SZCITYCODE
                            AND MD.SZDISTRICTCODE = OAD.SZDISTRICTCODE),
                         OAD.SZSHORTADDRESS1) || ',',
                     '') ||
                (SELECT MC.SZDESC
-                  FROM MST_CITY MC
+                  FROM MST_CITY@GLM_LOS MC
                  WHERE MC.SZCITYCODE = OAD.SZCITYCODE
                    AND MC.SZSTATECODE = OAD.SZSTATECODE) ADDRESS
           FROM
-               otheraddressdetails oad,
-               otheraddressheader oah,
-               mst_city cit,
-               mst_state stat
+               otheraddressdetails@GLM_LOS oad,
+               otheraddressheader@GLM_LOS oah,
+               mst_city@GLM_LOS cit,
+               mst_state@GLM_LOS stat
          WHERE 1=1
           -- AND TAWD.SZPARTYTYPE  = 'BORROWER'
            AND oad.iaddressseq   = TAWD.Iaddressseq
@@ -52,44 +52,44 @@ tawd.szlname || ' ' || tawd.szmname || ' ' || tawd.szfname "FullName"
 ,nvl(tawd.szemployername,'') "CompanyName"
 ,nvl(tawd.szemployeraddress,'') "CompanyAddress"
 ,nvl((SELECT distinct WFA.szdesc FROM   
-           WFWORKFLOWTOKEN WFT
-           ,WFTOKENATTRIBUTES WTA
-           ,WFACTIVITYMASTER WFA
+           WFWORKFLOWTOKEN@GLM_LOS WFT
+           ,WFTOKENATTRIBUTES@GLM_LOS WTA
+           ,WFACTIVITYMASTER@GLM_LOS WFA
   WHERE 1=1
     AND WTA.SZTOKENNO = WFT.SZTOKENNO
     AND WTA.SZACTIVITYCODE = WFA.SZACTIVITYCODE
     AND WFT.SZWORKFLOWDRIVER = tawd.SZLOANAPPLNNO
     AND WTA.SZACTIVITYCODE = WFA.SZACTIVITYCODE
     AND WTA.szactivitycode in ('SAN_LETT')
-  ),'Unavailable')   "Status"        
+  ),'Unavailable')   "Status"    
 FROM       
-  tr_applicationworkdetails tawd
+  tr_applicationworkdetails@GLM_LOS tawd
   ,(SELECT OAD.SZADDRESS1 || ',' ||
                NVL2(TRIM(OAD.SZLANDMARK), TRIM(OAD.SZLANDMARK) || ',', '') ||
                NVL2(TRIM(OAD.SZSHORTADDRESS2),
                     TRIM(OAD.SZSHORTADDRESS2) || ',',
                     '') ||
                NVL2(NVL((SELECT MD.SZDESC
-                          FROM MST_DISTRICT MD
+                          FROM MST_DISTRICT@GLM_LOS MD
                          WHERE MD.SZCITYCODE = OAD.SZCITYCODE
                            AND MD.SZDISTRICTCODE = OAD.SZDISTRICTCODE),
                         OAD.SZSHORTADDRESS1),
                     NVL((SELECT MD.SZDESC
-                          FROM MST_DISTRICT MD
+                          FROM MST_DISTRICT@GLM_LOS MD
                          WHERE MD.SZCITYCODE = OAD.SZCITYCODE
                            AND MD.SZDISTRICTCODE = OAD.SZDISTRICTCODE),
                         OAD.SZSHORTADDRESS1) || ',',
                     '') ||
                (SELECT MC.SZDESC
-                  FROM MST_CITY MC
+                  FROM MST_CITY@GLM_LOS MC
                  WHERE MC.SZCITYCODE = OAD.SZCITYCODE
                    AND MC.SZSTATECODE = OAD.SZSTATECODE) ADDRESS
                    ,oad.iaddressseq
                    ,oad.szmobil mobile
           FROM 
-               otheraddressdetails oad,
-               mst_city cit,
-               mst_state stat
+               otheraddressdetails@GLM_LOS oad,
+               mst_city@GLM_LOS cit,
+               mst_state@GLM_LOS stat
          WHERE 1=1
            AND OAD.SZADDRESSTYPE = 'RS'
            AND oad.isrlno = 1
@@ -98,7 +98,7 @@ FROM
            AND oad.szstatecode = stat.szstatecode(+)
            AND oad.szcountry = stat.szcountrycode(+)
        ) rs_addr
-       ,induslosr.GENERALCONDITIONMASTER gen
+       ,GENERALCONDITIONMASTER@GLM_LOS gen
 WHERE 1=1
 AND tawd.szpartytype = 'BORROWER' 
 AND gen.SZSYSTEMNAME = 'LOS'

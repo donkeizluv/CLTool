@@ -1,2 +1,3 @@
 ﻿-implement VueEx
 -inject VieWModel on page load DONE
+- NO magic strings!

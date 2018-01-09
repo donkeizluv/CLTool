@@ -7,7 +7,6 @@ using GemBox.Document;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
 using CashLoanTool.DocumentUltility;
 using NLog;
 using CashLoanTool.Filters;
@@ -15,6 +14,7 @@ using System;
 using CashLoanTool.ViewModels;
 using System.Text;
 using System.Threading.Tasks;
+using Aspose.Words;
 
 namespace CashLoanTool.Controllers
 {
@@ -59,12 +59,12 @@ namespace CashLoanTool.Controllers
             using (_context)
             {
                 //check valid
-                var currentUser = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
+                //var currentUser = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
                 var request = await _context.Request.Where(r => r.RequestId == i).Include(r => r.CustomerInfo).Include(r => r.Response).FirstOrDefaultAsync();
                 //invalid request id
                 if (request == null) return BadRequest();
                 //user can only print own request
-                if (string.Compare(request.Username, currentUser, true) != 0) return Unauthorized();
+                //if (string.Compare(request.Username, currentUser, true) != 0) return Unauthorized();
                 //request has no response yet
                 if (!request.HasValidAcctNo) return BadRequest();
 
@@ -73,14 +73,82 @@ namespace CashLoanTool.Controllers
                 var document = ArgreementMaker.
                     FillTemplate(customerInfo, request.AcctNo, issuer, pob, templatePath);
                 var responseStream = new MemoryStream();
-                document.Save(responseStream, SaveOptions.PdfDefault);
+                //document.Save(responseStream, new PdfSaveOptions() { Permissions = PdfPermissions.All });
                 //to return file use File()
+                ArgreementMaker.AsposePdfStream(document, responseStream);
                 return File(responseStream, "application/pdf");
 
                 //Download file
                 //return File(responseStream, "application/pdf", $"{request.LoanNo}.pdf");
             }
         }
+
+        //[HttpGet]
+        //public async Task<IActionResult> GetDocumentAspose([FromQuery]string q = "")
+        //{
+        //    if (string.IsNullOrEmpty(q)) return BadRequest();
+        //    if (!Decode64(q, out int i, out int iss, out int p))
+        //        return BadRequest();
+        //    if (!GetIssuer(iss, p, out var issuer, out var pob))
+        //        return BadRequest();
+
+        //    using (_context)
+        //    {
+        //        //check valid
+        //        //var currentUser = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
+        //        var request = await _context.Request.Where(r => r.RequestId == i).Include(r => r.CustomerInfo).Include(r => r.Response).FirstOrDefaultAsync();
+        //        //invalid request id
+        //        if (request == null) return BadRequest();
+        //        //user can only print own request
+        //        //if (string.Compare(request.Username, currentUser, true) != 0) return Unauthorized();
+        //        //request has no response yet
+        //        if (!request.HasValidAcctNo) return BadRequest();
+
+        //        var customerInfo = request.CustomerInfo.Single();
+        //        var templatePath = EnviromentHelper.GetDocumentFullPath(TemplateName, DocumentFolder);
+        //        var document = ArgreementMaker.FillTemplateAspose(customerInfo, request.AcctNo, issuer, pob, templatePath);
+        //        var responseStream = new MemoryStream();
+        //        document.Save(responseStream, SaveFormat.Pdf);
+        //        responseStream.Position = 0;
+        //        return File(responseStream, "application/pdf");
+        //    }
+        //}
+
+        //[HttpGet]
+        //public async Task<IActionResult> GetDocumentDocx([FromQuery]string q = "")
+        //{
+        //    if (string.IsNullOrEmpty(q)) return BadRequest();
+        //    if (!Decode64(q, out int i, out int iss, out int p))
+        //        return BadRequest();
+        //    if (!GetIssuer(iss, p, out var issuer, out var pob))
+        //        return BadRequest();
+
+        //    using (_context)
+        //    {
+        //        //check valid
+        //        //var currentUser = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
+        //        var request = await _context.Request.Where(r => r.RequestId == i).Include(r => r.CustomerInfo).Include(r => r.Response).FirstOrDefaultAsync();
+        //        //invalid request id
+        //        if (request == null) return BadRequest();
+        //        //user can only print own request
+        //        //if (string.Compare(request.Username, currentUser, true) != 0) return Unauthorized();
+        //        //request has no response yet
+        //        if (!request.HasValidAcctNo) return BadRequest();
+
+        //        var customerInfo = request.CustomerInfo.Single();
+        //        var templatePath = EnviromentHelper.GetDocumentFullPath(TemplateName, DocumentFolder);
+        //        var document = ArgreementMaker.
+        //            FillTemplate(customerInfo, request.AcctNo, issuer, pob, templatePath);
+        //        var responseStream = new MemoryStream();
+        //        document.Save(responseStream, SaveOptions.DocxDefault);
+        //        //to return file use File()
+        //        return File(responseStream, "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+
+        //        //Download file
+        //        //return File(responseStream, "application/pdf", $"{request.LoanNo}.pdf");
+        //    }
+        //}
+
         private bool Decode64(string base64, out int id, out int iss, out int p)
         {
             id = -1;
