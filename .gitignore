@@ -12,6 +12,8 @@
 *.xlsx
 *.xls
 
+#external stuff
+lib/
 
 #private stuff
 *.doc

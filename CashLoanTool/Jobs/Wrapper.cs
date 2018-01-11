@@ -43,13 +43,11 @@ namespace CashLoanTool.Jobs
                 gender = customerInfo.Gender,
                 address = customerInfo.HomeAddress,
                 birthDate = customerInfo.Dob.ToString(DOBDateFormat),
-                identityCardName = customerInfo.FullName, //Full name already strip
-                //issuePlace = customerInfo.Issuer, //Indus cant supply this
-                issuePlace = "hdsaison",
+                identityCardName = customerInfo.FullName,
+                issuePlace = customerInfo.Issuer,
                 issueDate = customerInfo.IssueDate.ToString(DOBDateFormat),
                 phone = customerInfo.Phone,
                 loanNo = rq.LoanNo
-                //signature = "xxx"
             };
             hdssRq.signature = CreateSignature(hdssRq); ;
             //logger.Info(hdssRq.requestId);

@@ -75,7 +75,7 @@ namespace CashLoanTool.Jobs
                                 skipVerify = true;
                                 break;
                             case "03":
-                                throw new InvalidOperationException("Server response 03. Check network then restart app");
+                                throw new InvalidOperationException($"Server response 03. Invalid format: {response.ResponseMessage}");
                             case "05":
                                 throw new InvalidOperationException("Invalid signature 05. Check keys then restart app");
                             default:

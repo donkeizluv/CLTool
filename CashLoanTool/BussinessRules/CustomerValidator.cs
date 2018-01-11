@@ -114,8 +114,7 @@ namespace CashLoanTool.BussinessRules
             if (customer.FullName.Length > IdNameLength)
             {
                 //Trim Fullname
-                logger.Info($"Substring FullName: {customer.FullName} => {customer.FullName.Substring(0, IdNameLength)}");
-                customer.FullName = customer.FullName.Substring(0, IdNameLength);
+                throw new InvalidDataException($"Tên khách hàng quá dài so với quy định HDBank.");
             }
             if (customer.HomeAddress.Length > AddressLength)
             {

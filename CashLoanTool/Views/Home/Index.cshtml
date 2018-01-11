@@ -1,4 +1,4 @@
-﻿@using CashLoanTool.ViewModels;
+﻿@using CashLoanTool.Helper;
 @model CashLoanTool.ViewModels.RequestListingModel
 @{
     ViewData["Title"] = "Main page";
@@ -7,7 +7,7 @@
 @*inject stuff...*@
 <script>
     window.model = @Json.Serialize(Model);
-    window.Issuers = @Json.Serialize(ViewData[nameof(IssuerList.Issuers)])
+    window.Cities = @Json.Serialize(ViewData[nameof(CityList.Cities)])
 </script>
 <div class="text-center">
     <div id="app">

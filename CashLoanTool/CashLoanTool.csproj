@@ -30,7 +30,7 @@
     <Content Remove="wwwroot\src\Home\API.js" />
     <Content Remove="wwwroot\src\Home\app.js" />
     <Content Remove="wwwroot\src\Home\ClView.vue" />
-    <Content Remove="wwwroot\src\Home\PrintModal.vue" />
+    <Content Remove="wwwroot\src\Home\InputModal.vue" />
     <Content Remove="wwwroot\src\shared.js" />
   </ItemGroup>
 
@@ -73,16 +73,16 @@
     <None Include="wwwroot\src\Home\API.js" />
     <None Include="wwwroot\src\Home\app.js" />
     <None Include="wwwroot\src\Home\CLView.vue" />
-    <None Include="wwwroot\src\Home\PrintModal.vue" />
+    <None Include="wwwroot\src\Home\InputModal.vue" />
     <None Include="wwwroot\src\shared.js" />
   </ItemGroup>
 
   <ItemGroup>
     <Reference Include="Aspose.Words">
-      <HintPath>..\Aspose.Words.dll</HintPath>
+      <HintPath>..\lib\Aspose.Words.dll</HintPath>
     </Reference>
     <Reference Include="HDB">
-      <HintPath>..\HDB.dll</HintPath>
+      <HintPath>..\lib\HDB.dll</HintPath>
     </Reference>
     <Reference Include="System.DirectoryServices.AccountManagement" />
   </ItemGroup>

@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using CashLoanTool.EntityModels;
 using CashLoanTool.Helper;
 using System.IO;
-using GemBox.Document;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.EntityFrameworkCore;
@@ -14,7 +13,6 @@ using System;
 using CashLoanTool.ViewModels;
 using System.Text;
 using System.Threading.Tasks;
-using Aspose.Words;
 
 namespace CashLoanTool.Controllers
 {
@@ -48,19 +46,15 @@ namespace CashLoanTool.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetDocument([FromQuery]string q = "")
+        public async Task<IActionResult> GetDocument([FromQuery]string id)
         {
-            if (string.IsNullOrEmpty(q)) return BadRequest();
-            if (!Decode64(q, out int i, out int iss, out int p))
-                return BadRequest();
-            if (!GetIssuer(iss, p, out var issuer, out var pob))
-                return BadRequest();
-
+            if (string.IsNullOrEmpty(id)) return BadRequest();
+            if (!Decode64(id, out var contractId)) return BadRequest();
             using (_context)
             {
                 //check valid
                 //var currentUser = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
-                var request = await _context.Request.Where(r => r.RequestId == i).Include(r => r.CustomerInfo).Include(r => r.Response).FirstOrDefaultAsync();
+                var request = await _context.Request.Where(r => r.RequestId == contractId).Include(r => r.CustomerInfo).Include(r => r.Response).FirstOrDefaultAsync();
                 //invalid request id
                 if (request == null) return BadRequest();
                 //user can only print own request
@@ -69,9 +63,16 @@ namespace CashLoanTool.Controllers
                 if (!request.HasValidAcctNo) return BadRequest();
 
                 var customerInfo = request.CustomerInfo.Single();
+
+                //fucked up catcher
+                if(string.IsNullOrEmpty(customerInfo.Issuer) || string.IsNullOrEmpty(customerInfo.Pob))
+                {
+                    return Ok("Khách hàng này thiếu thông tin nơi cấp CMND, nơi sinh => liên hệ luu.nhat-hong@hdsaison.com.vn để bổ sung thông tin");
+                }
+
                 var templatePath = EnviromentHelper.GetDocumentFullPath(TemplateName, DocumentFolder);
                 var document = ArgreementMaker.
-                    FillTemplate(customerInfo, request.AcctNo, issuer, pob, templatePath);
+                    FillTemplate(customerInfo, request.AcctNo, templatePath);
                 var responseStream = new MemoryStream();
                 //document.Save(responseStream, new PdfSaveOptions() { Permissions = PdfPermissions.All });
                 //to return file use File()
@@ -149,44 +150,21 @@ namespace CashLoanTool.Controllers
         //    }
         //}
 
-        private bool Decode64(string base64, out int id, out int iss, out int p)
+        private bool Decode64(string base64, out int decoded)
         {
-            id = -1;
-            iss = -1;
-            p = -1;
+            decoded = -1;
             if (string.IsNullOrEmpty(base64)) return false;
-            var data = Convert.FromBase64String(base64);
-            string decodedString = Encoding.UTF8.GetString(data);
-            var splited = decodedString.Split('-');
-            //exp 1-2-3
-            if (splited.Count() != 3) return false;
-
             try
             {
-                id = int.Parse(splited[0]);
-                iss = int.Parse(splited[1]);
-                p = int.Parse(splited[2]);
+                var data = Convert.FromBase64String(base64);
+                string decodedString = Encoding.UTF8.GetString(data);
+                decoded = int.Parse(decodedString);
             }
             catch (Exception)
             {
                 return false;
             }
             return true;
-        }
-        private bool GetIssuer(int iss, int p, out string issuer, out string pob)
-        {
-            issuer = string.Empty;
-            pob = string.Empty;
-            try
-            {
-                issuer = IssuerList.Issuers[iss];
-                pob = IssuerList.Issuers[p];
-                return true;
-            }
-            catch (IndexOutOfRangeException)
-            {
-                return false;
-            }
         }
     }
 }

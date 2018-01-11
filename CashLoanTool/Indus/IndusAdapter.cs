@@ -66,6 +66,7 @@ namespace CashLoanTool.Indus
                 connection.ConnectionString = GetConnectionString();
                 await connection.OpenAsync();
                 var customer =  await GetCustomer(connection, new CommandDefinition(GetQuery(contractId)));
+                //fill in input info
                 if (customer == null) return null; //Cant find customer
                 //Return customer with stripped vietnamese accents
                 return StringCleaner.StripAccentsNSpecialChars(customer);

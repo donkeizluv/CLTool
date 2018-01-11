@@ -74,18 +74,18 @@ namespace CashLoanTool.DocumentUltility
                 runNode.Remove();
             }
         }
-        public static DocumentModel FillTemplate(CustomerInfo customer, string acctNo, string issuer, string pob, string templatePath)
+        public static DocumentModel FillTemplate(CustomerInfo customer, string acctNo, string templatePath)
         {
             var document = DocumentModel.Load(templatePath, DocxLoadOptions.DocxDefault);
             document.ViewOptions.ViewType = ViewType.FullScreen;
             // Find and replace text.
             document.Content.Replace("{name}", customer.FullName);
             //document.Content.Replace("{pob}", customer.Pob); //Indus cant supply this
-            document.Content.Replace("{pob}", pob);
+            document.Content.Replace("{pob}", customer.Pob);
             document.Content.Replace("{id}", customer.IdentityCard);
             document.Content.Replace("{id_date}", customer.IssueDate.ToString(DateFormat));
             //document.Content.Replace("{id_issuer}", customer.Issuer); //Indus cant supply this
-            document.Content.Replace("{id_issuer}", issuer);
+            document.Content.Replace("{id_issuer}", customer.Issuer);
             document.Content.Replace("{dob}", customer.Dob.ToString(DateFormat));
             document.Content.Replace("{addr}", (customer.HomeAddress??string.Empty));
             //IF no CT info then use RS instead

@@ -5,6 +5,12 @@ using System.Threading.Tasks;
 
 namespace CashLoanTool.Controllers
 {
+    public class CreateRequestPost
+    {
+        public string ContractId { get; set; }
+        public int IssuePlace { get; set; }
+        public int Pob { get; set; }
+    }
     public class PostWrapper
     {
         public string Post { get; set; }

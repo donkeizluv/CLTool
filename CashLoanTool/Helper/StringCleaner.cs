@@ -1,10 +1,14 @@
 ﻿using CashLoanTool.EntityModels;
+using System.Globalization;
+using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace CashLoanTool.Helper
 {
     public static class StringCleaner
     {
+
         private static string[] _accents = new string[] { "á", "à", "ả", "ã", "ạ", "â", "ấ", "ầ", "ẩ", "ẫ", "ậ", "ă", "ắ", "ằ", "ẳ", "ẵ", "ặ",
                 "đ",
                 "é","è","ẻ","ẽ","ẹ","ê","ế","ề","ể","ễ","ệ",
@@ -19,7 +23,21 @@ namespace CashLoanTool.Helper
                 "o","o","o","o","o","o","o","o","o","o","o","o","o","o","o","o","o",
                 "u","u","u","u","u","u","u","u","u","u","u",
                 "y","y","y","y","y",};
-
+        //Sometime accented char looks same but not getting replace with non-accented version
+        //probly bcz of encode shit...
+        //normalize to C seems to help
+        public static string RemoveVietnameseAccents(string text)
+        {
+            if (text == null) return null;
+            string normalized = text.Normalize();
+            for (int i = 0; i < _accents.Length; i++)
+            {
+                var find = _accents[i].Normalize();
+                var replacement = _replacement[i].Normalize();
+                normalized = normalized.Replace(find, replacement).Replace(find.ToUpper(), replacement.ToUpper());
+            }
+            return normalized;
+        }
         public static CustomerInfo StripAccentsNSpecialChars(CustomerInfo customer)
         {
             //TODO: maybe missing some fields
@@ -54,17 +72,5 @@ namespace CashLoanTool.Helper
             if (text == null) return null;
             return Regex.Replace(text, @"[^0-9a-zA-Z]+", string.Empty);
         }
-        public static string RemoveVietnameseAccents(string text)
-        {
-            if (text == null) return null;
-            for (int i = 0; i < _accents.Length; i++)
-            {
-                text = text.Replace(_accents[i], _replacement[i]);
-                text = text.Replace(_accents[i].ToUpper(), _replacement[i].ToUpper());
-            }
-            return text;
-        }
-
-       
     }
 }

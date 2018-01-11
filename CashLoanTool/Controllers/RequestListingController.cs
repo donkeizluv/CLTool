@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using CashLoanTool.BussinessRules;
 using CashLoanTool.EntityModels;
 using CashLoanTool.Filters;
+using CashLoanTool.Helper;
 using CashLoanTool.Indus;
 using CashLoanTool.ViewModels;
 using Microsoft.AspNetCore.Authorization;
@@ -33,10 +34,10 @@ namespace CashLoanTool.Controllers
             //_cache = memoryCache;
         }
         [HttpPost]
-        public async Task<IActionResult> CheckContract([FromBody] PostWrapper content)
+        public async Task<IActionResult> CheckContract([FromBody] PostWrapper post)
         {
             //Trim & clean special chars here
-            var contractId = content.Post.Trim();
+            var contractId = post.Post?.Trim() ?? string.Empty;
             if (string.IsNullOrEmpty(contractId))
                 return BadRequest();
             using (_context)
@@ -64,12 +65,17 @@ namespace CashLoanTool.Controllers
                 }
             }
         }
+        
         [HttpPost]
-        public async Task<IActionResult> CreateRequest([FromBody] PostWrapper content)
+        public async Task<IActionResult> CreateRequest([FromBody] CreateRequestPost content)
         {
             //Trim & clean special chars here
-            var contractId = content.Post.Trim();
+            var contractId = content.ContractId?.Trim() ?? string.Empty;
+            int issuerId = content.IssuePlace;
+            int pobId = content.Pob;
             if (string.IsNullOrEmpty(contractId))
+                return BadRequest();
+            if (!CityList.CityTranslater(issuerId, pobId, out string issuer, out string pob))
                 return BadRequest();
             var currentUser = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
             using (_context)
@@ -80,12 +86,15 @@ namespace CashLoanTool.Controllers
                 if (CustomerValidator.CheckAndClean(customerInfo, contractId, out var mess, out var cleaned))
                 {
                     if (cleaned == null) throw new InvalidOperationException();
+                    //update input infomation
+                    cleaned.Pob = pob;
+                    cleaned.Issuer = issuer;
                     var request = new Request()
                     {
                         LoanNo = contractId,
                         RequestCreateTime = DateTime.Now,
                         RequestType = "OpenAccount", //Hardcoded as HDB request
-                        Username = currentUser
+                        Username = currentUser,
                         //Signature = "xxx" //Hardcoded as HDB request
                     };
                     request.CustomerInfo.Add(cleaned);

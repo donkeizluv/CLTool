@@ -1,10 +1,10 @@
 <template id="cl-view">
     <div class="container">
-        <print-modal v-bind:issuers="Issuers"
-                       v-if="IsShowingPrintModal"
-                       v-on:close="IsShowingPrintModal = false"
-                     v-on:submitprint="SubmitPrint">
-        </print-modal>
+        <input-modal v-bind:issuers="Cities"
+                       v-if="IsShowingInputInfo"
+                       v-on:close="IsShowingInputInfo = false"
+                    v-on:submit="SubmitRequest">
+        </input-modal>
         <div>
             <div class="well padding-sm">
                 <div v-bind:class="StatusTextClass">
@@ -16,7 +16,7 @@
                     <label for="requestField">Số HĐ:</label>
                     <input v-bind:disabled="Loading" name="requestField" v-model="ContractId" v-on:keyup="DisallowSend" v-on:keyup.enter="CheckContractClicked" type="text" class="form-control" />
                     <button v-bind:disabled="Loading" v-on:click="CheckContractClicked" type="button" class="btn btn-primary">Kiểm tra <span class="glyphicon glyphicon-check" aria-hidden="true"></span></button>
-                    <button v-bind:disabled="!AllowSend || Loading" type="button" v-on:click="SendRequestClicked" class="btn btn-success">Gửi <span v-bind:disabled="!AllowSend || Loading" class="glyphicon glyphicon-send" aria-hidden="true"></span></button>
+                    <button v-bind:disabled="!AllowSend || Loading" type="button" v-on:click="ShowInputModal" class="btn btn-success">Gửi <span v-bind:disabled="!AllowSend || Loading" class="glyphicon glyphicon-send" aria-hidden="true"></span></button>
                 </div>
             </div>
         </div>
@@ -35,7 +35,6 @@
                     <td><h5>Tên</h5></td>
                     <td><h5>CMND</h5></td>
                     <td><h5>SĐT</h5></td>
-
                     <td><h5>Số HĐ</h5></td>
                     <td><button class="btn btn-link" v-on:click="OrderByClicked('RequestCreateTime')"><span v-html="DisplayOrderButtonStates('RequestCreateTime')"></span>Ngày tạo</button></td>
                     <td><h5>Người tạo</h5></td>
@@ -56,7 +55,7 @@
                         <!--<button v-show="request.HasValidAcctNo" v-on:click="GetDocument(request)" class="btn btn-link">
             <span class="fa fa-print onepointfive-em"></span>
         </button>-->
-                        <button v-show="request.HasValidAcctNo" v-on:click="ShowPrintModal(request.RequestId)" class="btn btn-link">
+                        <button v-show="request.HasValidAcctNo" v-on:click="OpenContractPrinting(request.RequestId)" class="btn btn-link">
                             <span class="fa fa-print onepointfive-em"></span>
                         </button>
                     </td>
@@ -86,14 +85,14 @@
     import axios from 'axios'
     import common from '../Common'
     import API from '../Home/API'
-    import PrintModal from './PrintModal.vue'
+    import InputModal from './InputModal.vue'
 
     export default {
         name: 'CLView',
         template: '#cl-view',
         components: {
             'page-nav': require('vuejs-paginate'),
-            'print-modal': PrintModal
+            'input-modal': InputModal
         },
         mounted: function () {
             this.Init();
@@ -117,11 +116,11 @@
                 Loading: false, //prevent clicking while loading new content
                 //listing, nav
 
-                IsShowingPrintModal: false,
+                IsShowingInputInfo: false,
                 PrintingId: '',
 
                 RequestListingModel: [],
-                Issuers: [],
+                Cities: [],
                 Requests: [],
                 TotalRows: 0,
                 TotalPages: 0,
@@ -146,9 +145,9 @@
                 //Load injected
                 //console.log('component init!');
                 var injectedModel = window.model;
-                var issuers = window.Issuers;
+                var cities = window.Cities;
 
-                if (!injectedModel || !issuers) {
+                if (!injectedModel || !cities) {
                     this.$data.StatusMessage = "Error loading app. Contact IT Dept.";
                     this.$data.StatusTextClass = "status-danger";
                     this.$data.Loading = true;
@@ -161,7 +160,7 @@
                 this.$data.RequestListingModel = injectedModel;
                 this.$data.Requests = injectedModel.Requests;
 
-                this.$data.Issuers = issuers;
+                this.$data.Cities = cities;
                 this.UpdatePagination();
 
             },
@@ -298,26 +297,28 @@
                         that.$data.Loading = false;
                     });
             },
-            ShowPrintModal: function (requestId) {
-                this.$data.PrintingId = requestId;
-                this.$data.IsShowingPrintModal = true;
+            ShowInputModal: function () {
+                this.$data.IsShowingInputInfo = true;
             },
             //print document hanlder
-            SubmitPrint: function (additionalInfo) {
-                var s64 = encodeURIComponent(btoa(this.$data.PrintingId + '-' + additionalInfo.Issuer + '-' + additionalInfo.POB));
-                var url = API.CurrentHost + API.GetDocumentURL
-                    .replace('{q}', s64);
+            OpenContractPrinting: function (requestId) {
+                var s64 = encodeURIComponent(btoa(requestId));
+                var url = API.CurrentHost + API.GetDocumentURL;
+                url = url.replace('{id}', s64);
+                console.log(s64);
                 console.log(url);
-                this.$data.IsShowingPrintModal = false;
                 window.open(url);
             },
-            //Send request clicked handler
-            SendRequestClicked: function () {
+            //Input modal submit handler
+            SubmitRequest: function (additionalInfo) {
+                this.$data.IsShowingInputInfo = false;
                 var that = this;
                 var url = API.SendRequestURL;
-                //console.log(url);
+                //console.log({ ContractId: that.$data.ContractId, IssuePlace: additionalInfo.IssuePlace, Pob: additionalInfo.Pob });
                 axios.post(url, {
-                    post: that.$data.ContractId
+                    ContractId: that.$data.ContractId,
+                    IssuePlace: additionalInfo.IssuePlace,
+                    Pob: additionalInfo.Pob
                 })
                     .then(function (response) {
                         if (response.headers.login) {
@@ -331,7 +332,6 @@
                             that.$data.StatusMessage = message;
                             that.$data.StatusTextClass = "status-success";
                             that.$data.AllowSend = false;
-
                             //Refresh grid, sort no response to top
                             that.LoadRequests(that.GetCurrentRequestListAPI);
                         }
@@ -358,7 +358,6 @@
                     return "&utrif;";
                 }
                 return "";
-
             }
         }
     };
