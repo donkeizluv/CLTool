@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
@@ -12,12 +13,13 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
-namespace CashLoanTool.Controllers
+namespace CashLoanTool.Helper
 {
     [CustomExceptionFilterAttribute]
     public class AccountController : Controller
     {
-        private const string LoginStatusKey = "LoginStatus";
+        public static readonly string LoginStatusKey = "LoginStatus";
+
         //maybe private methods are more suitable since controllers dont seem to get call anywhere in code :/
         internal string Issuer
         {
@@ -79,28 +81,44 @@ namespace CashLoanTool.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> DoLogin([FromForm]string userName = "", [FromForm]string pwd = "")
         {
-            var loginLevel = GetLoginLevel(userName, pwd);
-            if (loginLevel == LoginResult.Error) return LoginFail();
-            if (loginLevel == LoginResult.NoPermission) return NoPermission();
-            if (loginLevel == LoginResult.NotActive) return NotActive();
-            var claims = new List<Claim>
+            using (_context)
             {
-                new Claim(ClaimTypes.Name, userName.ToLower(), ClaimValueTypes.String, Issuer),
-                new Claim(ClaimTypes.Role, loginLevel.ToString(), ClaimValueTypes.String, Issuer)
-            };
-            var userIdentity = new ClaimsIdentity("UserCred");
-            userIdentity.AddClaims(claims);
-            var userPrincipal = new ClaimsPrincipal(userIdentity);
-            await HttpContext.SignInAsync(
-                CookieAuthenticationDefaults.AuthenticationScheme,
-                userPrincipal,
-                new AuthenticationProperties
+                //clear whatever stored session
+                ClearSession();
+                var loginLevel = GetLoginLevel(userName, pwd, _context, out var user);
+                if (loginLevel == LoginResult.Error) return LoginFail();
+                if (loginLevel == LoginResult.NoPermission) return NoPermission();
+                if (loginLevel == LoginResult.NotActive) return NotActive();
+                //claims
+                var claims = new List<Claim>
                 {
-                    ExpiresUtc = DateTime.UtcNow.AddMinutes(60),
-                    IsPersistent = false,
-                    AllowRefresh = false
+                    new Claim(ClaimTypes.Name, userName.ToLower(), ClaimValueTypes.String, Issuer),
+                    new Claim(ClaimTypes.Role, loginLevel.ToString(), ClaimValueTypes.String, Issuer)
+                };
+                //add abilities to claims 
+                foreach (var ability in user.UserAbility)
+                {
+                    claims.Add(new Claim(ClaimTypes.Role, ability.Ability));
+                }
+                //add claims to identity
+                var userIdentity = new ClaimsIdentity("UserCred");
+                userIdentity.AddClaims(claims);
+                //add identity to principal
+                var userPrincipal = new ClaimsPrincipal(userIdentity);
+                await HttpContext.SignInAsync(
+                    CookieAuthenticationDefaults.AuthenticationScheme,
+                    userPrincipal,
+                    new AuthenticationProperties
+                    {
+                        ExpiresUtc = DateTime.UtcNow.AddMinutes(60)
+                    //IsPersistent = false,
+                    //AllowRefresh = false
                 });
-            return RedirectToAction("Index", "Home");
+                //Store user's division
+                SessionStore.SetDivison(this.HttpContext, user);
+                return RedirectToAction("Index", "Home");
+            }
+            
         }
 
         private IActionResult LoginFail()
@@ -123,6 +141,7 @@ namespace CashLoanTool.Controllers
         [Authorize]
         public async Task<IActionResult> LogOut()
         {
+            ClearSession();
             await HttpContext.SignOutAsync();
             return RedirectToAction("Login", "Account");
         }
@@ -143,6 +162,10 @@ namespace CashLoanTool.Controllers
         //    return LogonUser(userName, Domain, password, 3, 0, ref tokenHandler);
         //}
 
+        private void ClearSession()
+        {
+            HttpContext.Session.Clear();
+        }
         private bool ValidateCredentials(string userName, string pwd)
         {
             if (NoPwdCheck) return true;
@@ -152,25 +175,23 @@ namespace CashLoanTool.Controllers
                 return pc.ValidateCredentials(userName, pwd);
             }
         }
-        private LoginResult GetLoginLevel(string userName, string pwd)
+        private LoginResult GetLoginLevel(string userName, string pwd, CLToolContext context, out User user)
         {
+            user = null;
             if (string.IsNullOrEmpty(userName) || string.IsNullOrEmpty(pwd))
                 return LoginResult.Error;
             if (!ValidateCredentials(userName, pwd)) return LoginResult.Error;
-            using (_context)
-            {
-                var user = _context.User.FirstOrDefault(u => string.Compare(u.Username, userName) == 0);
-                if (user == null)
-                    return LoginResult.NoPermission; //no permission
+            user = context.User.Include(u => u.UserAbility).FirstOrDefault(u => u.Username == userName);
+            if (user == null)
+                return LoginResult.NoPermission; //no permission
 
-                if (!user.Active)
-                    return LoginResult.NotActive;
+            if (!user.Active)
+                return LoginResult.NotActive;
 
-                var accountType = user.Type;
-                if (!Enum.IsDefined(typeof(LoginResult), accountType))
-                    return LoginResult.Error;
-                return (LoginResult)Enum.Parse(typeof(LoginResult), accountType);
-            }
+            var accountType = user.Type;
+            if (!Enum.IsDefined(typeof(LoginResult), accountType))
+                return LoginResult.Error;
+            return (LoginResult)Enum.Parse(typeof(LoginResult), accountType);
         }
 
     }

@@ -8,7 +8,7 @@ using System.Text;
 
 namespace CashLoanTool.Jobs
 {
-    public static class Wrapper
+    public static class RequestWrapper
     {
         private static Logger logger = LogManager.GetCurrentClassLogger();
         private const string DOBDateFormat = "yyyy-MM-dd";
@@ -71,12 +71,12 @@ namespace CashLoanTool.Jobs
             concatBuilder.Append(hdssRq.requestId).Append(hdssRq.requestTime);
             concatBuilder.Append(hdssRq.requestType).Append(hdssRq.identityCard);
             concatBuilder.Append(hdssRq.identityCardName).Append(hdssRq.phone);
-            concatBuilder.Append(hdssRq.loanNo).Append(RSAHelper.Salt);
+            concatBuilder.Append(hdssRq.loanNo).Append(HdbRSA.Salt);
             //var hash = RSAHelper.Hash($"{hdssRq.requestId}" +
             //    $"{hdssRq.requestTime}{hdssRq.requestType}" +
             //    $"{hdssRq.identityCard}{hdssRq.identityCardName}" +
             //    $"{hdssRq.phone}{hdssRq.loanNo}{RSAHelper.SecretKey}");
-            return RSAHelper.SignData(RSAHelper.Hash(concatBuilder.ToString()));
+            return HdbRSA.SignData(HdbRSA.Hash(concatBuilder.ToString()));
         }
     }
 

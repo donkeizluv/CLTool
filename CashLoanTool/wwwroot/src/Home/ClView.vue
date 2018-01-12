@@ -1,6 +1,6 @@
 <template id="cl-view">
-    <div class="container">
-        <input-modal v-bind:issuers="Cities"
+    <div>
+        <input-modal v-bind:cities="Cities"
                        v-if="IsShowingInputInfo"
                        v-on:close="IsShowingInputInfo = false"
                     v-on:submit="SubmitRequest">
@@ -11,57 +11,68 @@
                     <h4 class="status-bar">{{StatusMessage}}</h4>
                 </div>
             </div>
-            <div class="container">
+            <div>
+                <div class="pull-left"><h5>Nhóm: <b>{{Division}}</b></h5></div>
                 <div class="form-inline">
-                    <label for="requestField">Số HĐ:</label>
+                    <label class="control-label" for="requestField">Số HĐ:</label>
                     <input v-bind:disabled="Loading" name="requestField" v-model="ContractId" v-on:keyup="DisallowSend" v-on:keyup.enter="CheckContractClicked" type="text" class="form-control" />
                     <button v-bind:disabled="Loading" v-on:click="CheckContractClicked" type="button" class="btn btn-primary">Kiểm tra <span class="glyphicon glyphicon-check" aria-hidden="true"></span></button>
                     <button v-bind:disabled="!AllowSend || Loading" type="button" v-on:click="ShowInputModal" class="btn btn-success">Gửi <span v-bind:disabled="!AllowSend || Loading" class="glyphicon glyphicon-send" aria-hidden="true"></span></button>
                 </div>
             </div>
         </div>
-        <table class="table table-hover">
-            <thead>
-                <tr>
-                    <td>
-                        <div class="center-block">
-                            <button v-bind:disabled="Loading" class="btn btn-primary" v-on:click="RefreshGrid">Refresh <i class="fa fa-refresh" aria-hidden="true"></i></button>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td><button class="btn btn-link" v-on:click="OrderByClicked('RequestId')"><span v-html="DisplayOrderButtonStates('RequestId')"></span>Request Số</button></td>
-                    <td><h5>Số Tk.</h5></td>
-                    <td><h5>Tên</h5></td>
-                    <td><h5>CMND</h5></td>
-                    <td><h5>SĐT</h5></td>
-                    <td><h5>Số HĐ</h5></td>
-                    <td><button class="btn btn-link" v-on:click="OrderByClicked('RequestCreateTime')"><span v-html="DisplayOrderButtonStates('RequestCreateTime')"></span>Ngày tạo</button></td>
-                    <td><h5>Người tạo</h5></td>
-                    <td><h5>In</h5></td>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="request in Requests">
-                    <td class="table-td" nowrap><span class="table-cell-content">{{request.RequestId}}</span></td>
-                    <td class="table-td" nowrap><span class="table-cell-content">{{request.AcctNo}}</span></td>
-                    <td class="table-td" nowrap><span class="table-cell-content">{{request.IdentityCardName}}</span></td>
-                    <td class="table-td" nowrap><span class="table-cell-content">{{request.IdentityCard}}</span></td>
-                    <td class="table-td" nowrap><span class="table-cell-content">{{request.Phone}}</span></td>
-                    <td class="table-td" nowrap><span class="table-cell-content">{{request.LoanNo}}</span></td>
-                    <td class="table-td" nowrap><span class="table-cell-content">{{request.RequestCreateTimeString}}</span></td>
-                    <td class="table-td" nowrap><span class="table-cell-content">{{request.Username}}</span></td>
-                    <td class="table-td" nowrap>
-                        <!--<button v-show="request.HasValidAcctNo" v-on:click="GetDocument(request)" class="btn btn-link">
-            <span class="fa fa-print onepointfive-em"></span>
-        </button>-->
-                        <button v-show="request.HasValidAcctNo" v-on:click="OpenContractPrinting(request.RequestId)" class="btn btn-link">
-                            <span class="fa fa-print onepointfive-em"></span>
-                        </button>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+        <!--scrollable in small width-->
+        <div style="overflow: auto">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <td>
+                            <div class="center-block">
+                                <button v-bind:disabled="Loading" class="btn btn-primary" v-on:click="RefreshGrid">Refresh <i class="fa fa-refresh" aria-hidden="true"></i></button>
+                            </div>
+                        </td>
+                        <td colspan="999">
+
+                            <div class="pull-right">
+                                <button class="btn btn-primary" v-show="CanExport" v-on:click="ExportRequests">Export <i class="fa  fa-download" aria-hidden="true"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><button class="btn btn-link" v-on:click="OrderByClicked('RequestId')"><span v-html="DisplayOrderButtonStates('RequestId')"></span>Request Số</button></td>
+                        <td><h5>Số Tk.</h5></td>
+                        <td><h5>Tên</h5></td>
+                        <td><h5>CMND</h5></td>
+                        <td><h5>SĐT</h5></td>
+                        <td><h5>Số HĐ</h5></td>
+                        <td><button class="btn btn-link" v-on:click="OrderByClicked('RequestCreateTime')"><span v-html="DisplayOrderButtonStates('RequestCreateTime')"></span>Ngày tạo</button></td>
+                        <td><h5>Người tạo</h5></td>
+                        <td><h5>In</h5></td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="request in Requests">
+                        <td class="table-td" nowrap><span class="table-cell-content">{{request.RequestId}}</span></td>
+                        <td class="table-td" nowrap><span class="table-cell-content">{{request.AcctNo}}</span></td>
+                        <td class="table-td" nowrap><span class="table-cell-content">{{request.IdentityCardName}}</span></td>
+                        <td class="table-td" nowrap><span class="table-cell-content">{{request.IdentityCard}}</span></td>
+                        <td class="table-td" nowrap><span class="table-cell-content">{{request.Phone}}</span></td>
+                        <td class="table-td" nowrap><span class="table-cell-content">{{request.LoanNo}}</span></td>
+                        <td class="table-td" nowrap><span class="table-cell-content">{{request.RequestCreateTimeString}}</span></td>
+                        <td class="table-td" nowrap><span class="table-cell-content">{{request.Username}}</span></td>
+                        <td class="table-td" nowrap>
+                            <!--<button v-show="request.HasValidAcctNo" v-on:click="GetDocument(request)" class="btn btn-link">
+                        <span class="fa fa-print onepointfive-em"></span>
+                    </button>-->
+                            <button v-show="request.HasValidAcctNo" v-on:click="OpenContractPrinting(request.RequestId)" class="btn btn-link">
+                                <span class="fa fa-print onepointfive-em"></span>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
         <div class="row">
             <div class="center-block">
                 <page-nav :page-count="TotalPages"
@@ -119,7 +130,9 @@
                 IsShowingInputInfo: false,
                 PrintingId: '',
 
-                RequestListingModel: [],
+                //RequestListingModel: [], //no really need to store this
+                Ability: [],
+                Division: undefined,
                 Cities: [],
                 Requests: [],
                 TotalRows: 0,
@@ -137,6 +150,15 @@
                 api = api.replace("{asc}", this.$data.OrderAsc);
                 //console.log(api);
                 return API.CurrentHost + api;
+            },
+            CanExport: function () {
+                var i = this.$data.Ability.length;
+                while (i--) {
+                    if (this.$data.Ability[i] === 'ExportRequests') {
+                        return true;
+                    }
+                }
+                return false;
             }
         },
         methods: {
@@ -146,8 +168,9 @@
                 //console.log('component init!');
                 var injectedModel = window.model;
                 var cities = window.Cities;
+                var ability = window.Ability;
 
-                if (!injectedModel || !cities) {
+                if (!injectedModel || !cities || !ability) {
                     this.$data.StatusMessage = "Error loading app. Contact IT Dept.";
                     this.$data.StatusTextClass = "status-danger";
                     this.$data.Loading = true;
@@ -157,11 +180,12 @@
                 this.$data.OnPage = injectedModel.OnPage;
                 this.$data.OrderBy = injectedModel.OrderBy;
                 this.$data.OrderAsc = injectedModel.OrderAsc;
-                this.$data.RequestListingModel = injectedModel;
+                //this.$data.RequestListingModel = injectedModel;
                 this.$data.Requests = injectedModel.Requests;
-
+                this.$data.Division = injectedModel.Division;
                 this.$data.Cities = cities;
-                this.UpdatePagination();
+                this.$data.Ability = ability;
+                this.UpdatePagination(injectedModel.TotalPages, injectedModel.TotalRows);
 
             },
             LoadRequests: function (url) {
@@ -177,9 +201,9 @@
                             //Login expired -> Redirect
                             window.location.href = response.headers.login;
                         }
-                        that.$data.RequestListingModel = response.data;
+                        //that.$data.RequestListingModel = response.data;
                         that.$data.Requests = response.data.Requests;
-                        that.UpdatePagination();
+                        that.UpdatePagination(response.data.TotalPages, response.data.TotalRows);
                         that.$data.Loading = false;
                     })
                     .catch(function (error) {
@@ -191,9 +215,9 @@
             },
 
             //update paging
-            UpdatePagination: function () {
-                this.$data.TotalPages = this.$data.RequestListingModel.TotalPages;
-                this.$data.TotalRows = this.$data.RequestListingModel.TotalRows;
+            UpdatePagination: function (totalPages, totalRows) {
+                this.$data.TotalPages = totalPages;
+                this.$data.TotalRows = totalRows;
             },
             //Page number clicked handler
             PageNavClicked: function (page) {
@@ -227,6 +251,10 @@
                 this.ClearAllControls();
                 this.$data.Loading = true; //prevent click spamming
                 this.LoadRequests(this.GetCurrentRequestListAPI);
+            },
+            ExportRequests: function () {
+                var url = API.CurrentHost + API.ExportRequestURL;
+                window.open(url);
             },
             ComposeRequestListingAPI: function (pageNumber) {
                 return {
@@ -320,35 +348,35 @@
                     IssuePlace: additionalInfo.IssuePlace,
                     Pob: additionalInfo.Pob
                 })
-                    .then(function (response) {
-                        if (response.headers.login) {
-                            //Login expired -> Redirect
-                            window.location.href = response.headers.login;
-                        }
-                        //console.log(response);
-                        var valid = response.data.Valid;
-                        var message = response.data.Message;
-                        if (valid) {
-                            that.$data.StatusMessage = message;
-                            that.$data.StatusTextClass = "status-success";
-                            that.$data.AllowSend = false;
-                            //Refresh grid, sort no response to top
-                            that.LoadRequests(that.GetCurrentRequestListAPI);
-                        }
-                        else {
-                            that.$data.StatusMessage = message;
-                            that.$data.StatusTextClass = "status-danger";
-                            that.$data.AllowSend = false;
-                            that.$data.Loading = false;
-                        }
-                    })
-                    .catch(function (error) {
-                        console.log(error);
-                        that.$data.StatusMessage = "Lỗi hệ thông: " + error.response.status + '(' + common.errorCodeTranslater(error.response.status) + ')';
+                .then(function (response) {
+                    if (response.headers.login) {
+                        //Login expired -> Redirect
+                        window.location.href = response.headers.login;
+                    }
+                    //console.log(response);
+                    var valid = response.data.Valid;
+                    var message = response.data.Message;
+                    if (valid) {
+                        that.$data.StatusMessage = message;
+                        that.$data.StatusTextClass = "status-success";
+                        that.$data.AllowSend = false;
+                        //Refresh grid, sort no response to top
+                        that.LoadRequests(that.GetCurrentRequestListAPI);
+                    }
+                    else {
+                        that.$data.StatusMessage = message;
                         that.$data.StatusTextClass = "status-danger";
                         that.$data.AllowSend = false;
                         that.$data.Loading = false;
-                    });
+                    }
+                })
+                .catch(function (error) {
+                    console.log(error);
+                    that.$data.StatusMessage = "Lỗi hệ thông: " + error.response.status + '(' + common.errorCodeTranslater(error.response.status) + ')';
+                    that.$data.StatusTextClass = "status-danger";
+                    that.$data.AllowSend = false;
+                    that.$data.Loading = false;
+                });
             },
             DisplayOrderButtonStates: function (orderBy) {
                 //console.log(orderBy);

@@ -9,12 +9,13 @@ using CashLoanTool.Helper;
 using CashLoanTool.Indus;
 using CashLoanTool.ViewModels;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using NLog;
 
-namespace CashLoanTool.Controllers
+namespace CashLoanTool.Helper
 {
     [Route("API/RequestListing/[action]")]
     [Authorize]
@@ -118,10 +119,16 @@ namespace CashLoanTool.Controllers
         {
             using (_context)
             {
-                //var currentUser = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
-                return Ok(await GetModel(_context, page, by, asc));
+#if DEBUG
+                return Ok(await GetModel(_context, SessionStore.ForceGetDevision(this.HttpContext, _context), page, by, asc));
+#else
+                return Ok(await GetModel(_context, SessionStore.ForceGetDevision(this.HttpContext, _context), page, by, asc));
+                //return Ok(await GetModel(_context, SessionStore.GetDevision(this.HttpContext), page, by, asc));
+#endif
+
             }
         }
+
         private static IOrderedQueryable<Request> OrderTranslater(IQueryable<Request> query, string orderBy, bool asc)
         {
             switch (orderBy)
@@ -139,44 +146,44 @@ namespace CashLoanTool.Controllers
                     return query.OrderBy(r => r.RequestId);
             }
         }
-        internal static async Task<RequestListingModel> GetModel(CLToolContext context, int pageNum, string orderBy, bool asc)
+        internal static async Task<RequestListingViewModel> GetModel(CLToolContext context, string division, int pageNum, string orderBy, bool asc)
         {
             int getPage = pageNum < 1 ? 1 : pageNum;
-            int excludedRows = (getPage - 1) * RequestListingModel.ItemPerPage;
-            //var user = context.User.SingleOrDefaultAsync(u => u.Username == userName);
-            //User can only see own requests
-            var query = context.Request;
+            int excludedRows = (getPage - 1) * RequestListingViewModel.ItemPerPage;
+            //User can only see rq from same Division
+            var query = context.Request.Where(r => r.UsernameNavigation.DivisionName == division);
             var totalRows = await query.CountAsync();
             var ordered = OrderTranslater(query, orderBy, asc);
-            var model = new RequestListingModel
+            var model = new RequestListingViewModel
             {
                 Requests = await ordered
                                 .Skip(excludedRows)
-                                .Take(RequestListingModel.ItemPerPage)
+                                .Take(RequestListingViewModel.ItemPerPage)
                                 .Include(r => r.CustomerInfo)
                                 .Include(r => r.Response)
                                 .ToListAsync(),
                 OnPage = pageNum,
                 OrderAsc = asc,
                 OrderBy = orderBy,
+                Division = division
             };
             model.UpdatePagination(totalRows);
             return model;
         }
-        internal static async Task<RequestListingModel> GetModelByUser(CLToolContext context, string userName, int pageNum, string orderBy, bool asc)
+        internal static async Task<RequestListingViewModel> GetModelByUser(CLToolContext context, string userName, int pageNum, string orderBy, bool asc)
         {
             int getPage = pageNum < 1 ? 1 : pageNum;
-            int excludedRows = (getPage - 1) * RequestListingModel.ItemPerPage;
+            int excludedRows = (getPage - 1) * RequestListingViewModel.ItemPerPage;
             //var user = context.User.SingleOrDefaultAsync(u => u.Username == userName);
             //User can only see own requests
             var query = context.Request.Where(r => r.Username == userName);
             var totalRows = await query.CountAsync();
             var ordered = OrderTranslater(query, orderBy, asc);
-            var model = new RequestListingModel
+            var model = new RequestListingViewModel
             {
                 Requests = await ordered
                                 .Skip(excludedRows)
-                                .Take(RequestListingModel.ItemPerPage)
+                                .Take(RequestListingViewModel.ItemPerPage)
                                 .Include(r => r.CustomerInfo)
                                 .Include(r => r.Response)
                                 .ToListAsync(),

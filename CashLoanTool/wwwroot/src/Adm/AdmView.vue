@@ -1,12 +1,12 @@
 <template id="adm-view">
     <div class="container">
-        <div class="row">
+        <!--<div class="row">
             <div class="form-inline padding-sm">
                 <label for="newUsername">Username:</label>
                 <input name="newUsername" v-model="NewUsername" v-on:keyup.enter="AddNewUser" type="text" class="form-control" />
                 <button v-on:click="AddNewUser" type="button" class="btn btn-primary">Add <span class="glyphicon glyphicon-plus" aria-hidden="true"></span></button>
             </div>
-        </div>
+        </div>-->
         <div class="row">
             <div class="container padding-sm">
                 <span v-bind:class="StatusTextClass">
@@ -14,24 +14,58 @@
                 </span>
             </div>
         </div>
-        <table class="table table-hover">
-            <thead>
-                <tr>
-                    <td><h5>Username</h5></td>
-                    <td><h5>Type</h5></td>
-                    <td><h5>Active</h5></td>
-                    <td><h5>Description</h5></td>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="user in Users">
-                    <td class="table-td" nowrap><span class="table-cell-content">{{user.Username}}</span></td>
-                    <td class="table-td" nowrap><span class="table-cell-content">{{user.Type}}</span></td>
-                    <td class="table-td" nowrap><span class="table-cell-content">{{user.Active? "Yes" : "No"}}</span></td>
-                    <td class="table-td" nowrap><span class="table-cell-content">{{user.Description}}</span></td>
-                </tr>
-            </tbody>
-        </table>
+        <div style="overflow: auto">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <td><h5>Username</h5></td>
+                        <td><h5>Division</h5></td>
+                        <td><h5>Export</h5></td>
+                        <td><h5>Type</h5></td>
+                        <td><h5>Active</h5></td>
+                        <td><h5>Description</h5></td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="user in Users">
+                        <td class="table-td" nowrap><span class="table-cell-content">{{user.Username}}</span></td>
+                        <td class="table-td" nowrap><span class="table-cell-content">{{user.DivisionName}}</span></td>
+                        <td class="table-td" nowrap><span class="table-cell-content">{{user.AllowExport? "Yes" : "No"}}</span></td>
+                        <td class="table-td" nowrap><span class="table-cell-content">{{user.Type}}</span></td>
+                        <td class="table-td" nowrap><span class="table-cell-content">{{user.Active? "Yes" : "No"}}</span></td>
+                        <td class="table-td" nowrap><span class="table-cell-content">{{user.Description}}</span></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input name="newUsername" v-model="NewUsername" v-on:keyup.enter="AddNewUser" type="text" class="form-control" />
+                        </td>
+                        <td>
+                            <select class="form-control" v-model="NewUserDivision">
+                                <option v-for="(d, index) in Divisions" v-bind:value="d">{{d}}</option>
+                            </select>
+                        </td>
+                        <td>
+                            <div class="checkbox text-center">
+                                <label><input type="checkbox" v-model="NewUserAllowExport">Export?</label>
+                            </div>
+                        </td>
+                        <td>
+                            <select class="form-control" disabled="disabled">
+                                <option>User</option>
+                            </select>
+                        </td>
+                        <td>
+                            <div class="checkbox text-center">
+                                <label><input disabled="disabled" type="checkbox" checked="checked">Active?</label>
+                            </div>
+                        </td>
+                        <td>
+                            <button v-on:click="AddNewUser" v-bind:disabled="DisableSubmit" type="button" class="btn btn-primary"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
         <div class="row">
             <div class="center-block">
                 <page-nav :page-count="TotalPages"
@@ -71,7 +105,11 @@
                 Status: '',
                 StatusTextClass: '',
                 NewUsername: '',
-                UsersModel: [],
+                NewUserDivision: '',
+                NewUserAllowExport: false,
+
+                Divisions: [],
+                //UsersModel: [],
                 Users: [],
                 TotalRows: 0,
                 TotalPages: 0,
@@ -86,6 +124,12 @@
                 api = api.replace("{page}", page);
                 console.log(api);
                 return API.CurrentHost + api;
+            },
+            DisableSubmit: function () {
+                //requires
+                if (!this.$data.NewUsername || !this.$data.NewUserDivision)
+                    return true;
+                return false;
             }
         },
         methods: {
@@ -93,10 +137,11 @@
             Init: function () {
                 var injectedModel = window.model;
                 //console.log("Use injected model...");
-                this.$data.UsersModel = injectedModel;
+                //this.$data.UsersModel = injectedModel;
                 this.$data.Users = injectedModel.Users;
                 this.$data.OnPage = injectedModel.OnPage;
-                this.UpdatePagination();
+                this.$data.Divisions = injectedModel.Divisions;
+                this.UpdatePagination(injectedModel.TotalPages, injectedModel.TotalRows);
             },
             LoadUsers: function (page) {
                 this.$data.OnPage = page;
@@ -111,9 +156,9 @@
                             //Login expired -> Redirect
                             window.location.href = response.headers.login;
                         }
-                        that.$data.UsersModel = response.data;
+                        //that.$data.UsersModel = response.data;
                         that.$data.Users = response.data.Users;
-                        that.UpdatePagination();
+                        that.UpdatePagination(response.data.TotalPages, response.data.TotalRows);
                     })
                     .catch(function (error) {
                         that.$data.Status = 'Server exception. Code: ' + error.response.status;
@@ -125,7 +170,11 @@
                 var format = /[ !@#$%^&*()_+\=\[\]{};':"\\|,<>\/?]/;
                 var that = this;
                 //check string valid
-                
+                if (!that.$data.NewUserDivision) {
+                    that.$data.Status = "Invalid Division!";
+                    that.$data.StatusTextClass = "status-danger";
+                    return;
+                }
                 if (!that.$data.NewUsername || format.test(that.$data.NewUsername)) {
                     that.$data.Status = "Invalid username!";
                     that.$data.StatusTextClass = "status-danger";
@@ -139,31 +188,33 @@
                 var url = API.AddNewUserURL;
                 //console.log(url);
                 axios.post(url, {
-                    post: that.$data.NewUsername
+                    Username: that.$data.NewUsername,
+                    Division: that.$data.NewUserDivision,
+                    ExportRequests: that.$data.NewUserAllowExport
                 })
-                    .then(function (response) {
-                        if (response.headers.login) {
-                            //Login expired -> Redirect
-                            window.location.href = response.headers.login;
-                        }
-                        //console.log(response);
-                        var valid = response.data.Valid;
-                        var message = response.data.Message;
-                        if (valid) {
-                            that.$data.Status = message;
-                            that.$data.StatusTextClass = "status-success";
-                            that.RefreshGrid();
-                        }
-                        else {
-                            that.$data.Status = message;
-                            that.$data.StatusTextClass = "status-danger";
-                        }
-                    })
-                    .catch(function (error) {
-                        console.log(error);
-                        that.$data.Status = "Failed: " + common.errorCodeTranslater(error.response.status);
+                .then(function (response) {
+                    if (response.headers.login) {
+                        //Login expired -> Redirect
+                        window.location.href = response.headers.login;
+                    }
+                    //console.log(response);
+                    var valid = response.data.Valid;
+                    var message = response.data.Message;
+                    if (valid) {
+                        that.$data.Status = message;
+                        that.$data.StatusTextClass = "status-success";
+                        that.RefreshGrid();
+                    }
+                    else {
+                        that.$data.Status = message;
                         that.$data.StatusTextClass = "status-danger";
-                    });
+                    }
+                })
+                .catch(function (error) {
+                    console.log(error);
+                    that.$data.Status = "Failed: " + common.errorCodeTranslater(error.response.status);
+                    that.$data.StatusTextClass = "status-danger";
+                });
             },
             RefreshGrid: function () {
                 this.LoadUsers(this.$data.OnPage);
@@ -172,9 +223,9 @@
                 this.$data.Status = '';
                 this.$data.StatusTextClass = '';
             },
-            UpdatePagination: function () {
-                this.$data.TotalPages = this.$data.UsersModel.TotalPages;
-                this.$data.TotalRows = this.$data.UsersModel.TotalRows;
+            UpdatePagination: function (totalPages, totalRows) {
+                this.$data.TotalPages = totalPages;
+                this.$data.TotalRows = totalRows;
             },
             //Page number clicked handler
             PageNavClicked: function (page) {

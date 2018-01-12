@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 
 namespace CashLoanTool.EntityModels
@@ -12,16 +13,24 @@ namespace CashLoanTool.EntityModels
         }
 
         public int RequestId { get; set; }
-        public string Guid { get; set; }
-        public DateTime RequestCreateTime { get; set; }
-        public DateTime? RequestSendTime { get; set; }
-        public string RequestType { get; set; }
         public string LoanNo { get; set; }
-        public string Signature { get; set; }
         public string Username { get; set; }
 
+        [JsonIgnore]
+        public string Guid { get; set; }
+        [JsonIgnore]
+        public DateTime RequestCreateTime { get; set; }
+        [JsonIgnore]
+        public DateTime? RequestSendTime { get; set; }
+        [JsonIgnore]
+        public string RequestType { get; set; }
+        [JsonIgnore]
+        public string Signature { get; set; }
+        [JsonIgnore]
         public User UsernameNavigation { get; set; }
+        [JsonIgnore]
         public ICollection<CustomerInfo> CustomerInfo { get; set; }
+        [JsonIgnore]
         public ICollection<Response> Response { get; set; }
     }
 }

@@ -14,7 +14,7 @@ using CashLoanTool.ViewModels;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CashLoanTool.Controllers
+namespace CashLoanTool.Helper
 {
     [Authorize]
     [CustomExceptionFilterAttribute]

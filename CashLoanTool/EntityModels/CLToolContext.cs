@@ -1,17 +1,43 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace CashLoanTool.EntityModels
 {
     public partial class CLToolContext : DbContext
     {
+        public virtual DbSet<Ability> Ability { get; set; }
         public virtual DbSet<AccountType> AccountType { get; set; }
+        public virtual DbSet<Branch> Branch { get; set; }
         public virtual DbSet<CustomerInfo> CustomerInfo { get; set; }
+        public virtual DbSet<Division> Division { get; set; }
         public virtual DbSet<Request> Request { get; set; }
         public virtual DbSet<Response> Response { get; set; }
         public virtual DbSet<User> User { get; set; }
+        public virtual DbSet<UserAbility> UserAbility { get; set; }
+
+//        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+//        {
+//            if (!optionsBuilder.IsConfigured)
+//            {
+//#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
+//                optionsBuilder.UseSqlServer(@"Server=(Localdb)\local;Database=CLTool;Trusted_Connection=True;");
+//            }
+//        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Ability>(entity =>
+            {
+                entity.HasKey(e => e.Name);
+
+                entity.Property(e => e.Name)
+                    .HasMaxLength(50)
+                    .ValueGeneratedNever();
+
+                entity.Property(e => e.Description).HasMaxLength(50);
+            });
+
             modelBuilder.Entity<AccountType>(entity =>
             {
                 entity.HasKey(e => e.Type);
@@ -23,6 +49,16 @@ namespace CashLoanTool.EntityModels
 
                 entity.Property(e => e.Description)
                     .IsRequired()
+                    .HasMaxLength(50);
+            });
+
+            modelBuilder.Entity<Branch>(entity =>
+            {
+                entity.Property(e => e.BranchId).ValueGeneratedNever();
+
+                entity.Property(e => e.BranchName)
+                    .IsRequired()
+                    .HasColumnName("BranchName")
                     .HasMaxLength(50);
             });
 
@@ -83,6 +119,22 @@ namespace CashLoanTool.EntityModels
                     .HasForeignKey(d => d.RequestId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_CustomerInfo_Request");
+            });
+
+            modelBuilder.Entity<Division>(entity =>
+            {
+                entity.HasKey(e => e.DivisionName);
+
+                entity.Property(e => e.DivisionName)
+                    .HasMaxLength(50)
+                    .ValueGeneratedNever();
+
+                entity.Property(e => e.Description).HasMaxLength(50);
+
+                entity.HasOne(d => d.Branch)
+                    .WithMany(p => p.Division)
+                    .HasForeignKey(d => d.BranchId)
+                    .HasConstraintName("FK_Division_Branch");
             });
 
             modelBuilder.Entity<Request>(entity =>
@@ -149,18 +201,50 @@ namespace CashLoanTool.EntityModels
 
                 entity.Property(e => e.Description)
                     .IsRequired()
-                    .HasMaxLength(100);
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.DivisionName).HasMaxLength(50);
 
                 entity.Property(e => e.Type)
                     .IsRequired()
                     .HasMaxLength(50)
                     .IsUnicode(false);
 
+                entity.HasOne(d => d.DivisionNameNavigation)
+                    .WithMany(p => p.User)
+                    .HasForeignKey(d => d.DivisionName)
+                    .HasConstraintName("FK_User_Division");
+
                 entity.HasOne(d => d.TypeNavigation)
                     .WithMany(p => p.User)
                     .HasForeignKey(d => d.Type)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_Users_AccountType");
+            });
+
+            modelBuilder.Entity<UserAbility>(entity =>
+            {
+                entity.HasKey(e => new { e.Ability, e.Username });
+
+                entity.Property(e => e.Ability).HasMaxLength(50);
+
+                entity.Property(e => e.Username).HasMaxLength(50);
+
+                entity.Property(e => e.Parameter1).HasMaxLength(100);
+
+                entity.Property(e => e.Parameter2).HasMaxLength(100);
+
+                entity.HasOne(d => d.AbilityNavigation)
+                    .WithMany(p => p.UserAbility)
+                    .HasForeignKey(d => d.Ability)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_UserAbility_Ability");
+
+                entity.HasOne(d => d.UsernameNavigation)
+                    .WithMany(p => p.UserAbility)
+                    .HasForeignKey(d => d.Username)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_UserAbility_User");
             });
         }
     }

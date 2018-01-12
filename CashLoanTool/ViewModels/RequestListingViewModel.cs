@@ -2,18 +2,22 @@
 using CashLoanTool.EntityModels;
 namespace CashLoanTool.ViewModels
 {
-    public class AdmModel
+    public class RequestListingViewModel
     {
-        public List<User> Users { get; set; }
+        public string Division { get; set; }
+
+        public List<Request> Requests { get; set; }
         public static int ItemPerPage { get; set; } = 10;
         //update these every time add record
         public int TotalPages { get; private set; }
         public int TotalRows { get; private set; }
+        public string OrderBy { get; set; }
+        public bool OrderAsc { get; set; }
         public int OnPage { get; set; }
 
-        public AdmModel()
+        public RequestListingViewModel()
         {
-            Users = new List<User>();
+            Requests = new List<Request>();
         }
         public void UpdatePagination(int totalRows)
         {

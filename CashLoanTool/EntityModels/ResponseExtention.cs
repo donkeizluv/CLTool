@@ -15,7 +15,7 @@ namespace CashLoanTool.EntityModels
             {
                 var builder = new StringBuilder();
                 builder.Append(ResponseCode ?? string.Empty).Append(AcctNo ?? string.Empty);
-                builder.Append(AcctName ?? string.Empty).Append(RSAHelper.Salt);
+                builder.Append(AcctName ?? string.Empty).Append(HdbRSA.Salt);
                 return builder.ToString();
             }
         }
@@ -26,7 +26,7 @@ namespace CashLoanTool.EntityModels
         {
             get
             {
-                return RSAHelper.Hash(SignatureComposition);
+                return HdbRSA.Hash(SignatureComposition);
             }
         }
     }

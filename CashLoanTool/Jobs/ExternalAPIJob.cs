@@ -48,14 +48,14 @@ namespace CashLoanTool.Jobs
                         //Update rq send time
                         request.RequestSendTime = DateTime.Now;
                         ////Must have customer info at this point
-                        var hdssRq = Wrapper.ToHDSSRequest(request, request.CustomerInfo.Single());
+                        var hdssRq = RequestWrapper.ToHDSSRequest(request, request.CustomerInfo.Single());
                         //Log raw rq
                         logger.Info("Request:");
                         logger.Info(JsonConvert.SerializeObject(hdssRq));
                         //var test = JsonConvert.SerializeObject(hdssRq);
                         //If network fail, rq wont get update with response & guid
                         var result = HDB.Program.PostToHDBank(url, hdssRq);
-                        var response = Wrapper.DeserializeResponse(result);
+                        var response = RequestWrapper.DeserializeResponse(result);
                         bool skipVerify = false;
                         //00: success
                         //01: có tài khoản cũ rồi nhưng tên sai so với tên đã lưu tại hdb
@@ -84,7 +84,7 @@ namespace CashLoanTool.Jobs
 
                         if (!skipVerify)
                         {
-                            if(!RSAHelper.Verify(response.VerificationHash, response.Signature))
+                            if(!HdbRSA.Verify(response.VerificationHash, response.Signature))
                                 throw new UnauthorizedAccessException($"Verification failed for request: {request.RequestId}");
                             logger.Info("Verify OK!");
                         }

@@ -7,8 +7,9 @@ using System.Text;
 
 namespace CashLoanTool.Helper
 {
-    public static class RSAHelper
+    public static class HdbRSA
     {
+        public static readonly int KeySize = 1024;
         private static Logger logger = LogManager.GetCurrentClassLogger();
 
         private static string _salt;
@@ -88,7 +89,7 @@ namespace CashLoanTool.Helper
         {
             var hashBytes = Encoding.UTF8.GetBytes(dataHash);
 
-            using (var rsa = new RSACryptoServiceProvider(1024))
+            using (var rsa = new RSACryptoServiceProvider(KeySize))
             {
                 try
                 {
@@ -108,7 +109,7 @@ namespace CashLoanTool.Helper
         public static bool Verify(string dataHash, string sign)
         {
             var hashBytes = Encoding.UTF8.GetBytes(dataHash);
-            using (var rsa = new RSACryptoServiceProvider(1024))
+            using (var rsa = new RSACryptoServiceProvider(KeySize))
             {
                 try
                 {

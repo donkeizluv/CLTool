@@ -47,8 +47,12 @@
         </div>
     </nav>
 
-    <div class="container top-buffer">
-        @RenderBody()
+    <div class="container-fluid top-buffer">
+        <div class="row">
+            <div class="col-lg-10 col-lg-offset-1">
+                @RenderBody()
+            </div>
+        </div>
     </div>
     @*toggle no footer*@
     @if (ViewBag.NoFooter != true)

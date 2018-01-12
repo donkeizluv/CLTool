@@ -1,9 +1,4 @@
 ﻿using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace CashLoanTool.Indus
 {
@@ -22,9 +17,9 @@ namespace CashLoanTool.Indus
             };
             return indus;
         }
-        public static ICustomerAdapter GetMockInstance()
-        {
-            return new MockIndusAdapter();
-        }
+        //public static ICustomerAdapter GetMockInstance()
+        //{
+        //    return new MockIndusAdapter();
+        //}
     }
 }

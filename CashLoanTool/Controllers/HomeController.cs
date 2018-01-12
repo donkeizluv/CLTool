@@ -2,17 +2,18 @@
 using Microsoft.AspNetCore.Mvc;
 using CashLoanTool.Models;
 using Microsoft.AspNetCore.Authorization;
-using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using CashLoanTool.EntityModels;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Caching.Memory;
 using CashLoanTool.Filters;
-using CashLoanTool.ViewModels;
 using System.Threading.Tasks;
 using CashLoanTool.Helper;
+using CashLoanTool.ViewModels;
+using System.Linq;
+using System.Security.Claims;
 
-namespace CashLoanTool.Controllers
+namespace CashLoanTool.Helper
 {
     [CustomExceptionFilterAttribute]
     public class HomeController : Controller
@@ -40,7 +41,18 @@ namespace CashLoanTool.Controllers
             {
                 //var currentUser = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
                 //default model to inject to view
-                var model = await RequestListingController.GetModel(_context, page, by, asc);
+#if DEBUG
+                //This works well, think i use this for convenient
+                var model = await RequestListingController.GetModel(_context, SessionStore.ForceGetDevision(this.HttpContext, _context), page, by, asc);
+#else
+                var model = await RequestListingController.GetModel(_context, SessionStore.ForceGetDevision(this.HttpContext, _context), page, by, asc);
+                //var model = await RequestListingController.GetModel(_context, SessionStore.GetDevision(this.HttpContext), page, by, asc);
+#endif
+                var abilities = from c in this.HttpContext.User.Claims
+                          where c.Type == ClaimTypes.Role
+                          select c.Value;
+                //move this to app init but that will make round trip request to fetch :/ hmmm
+                ViewData[nameof(Ability)] = abilities.ToList();
                 ViewData[nameof(CityList.Cities)] = CityList.Cities;
                 return View(model);
             }

@@ -37,8 +37,8 @@ namespace CashLoanTool
             Configuration = configuration;
             //Register the lib & other stuff
             ComponentInfo.SetLicense(GemboxDocumentKey);
-            APIScheduler.StartQuartz(configuration);
-            RSAHelper.ReadRSAKeys(configuration);
+            Scheduler.StartQuartz(configuration);
+            HdbRSA.ReadRSAKeys(configuration);
             EnviromentHelper.EnvStr = Configuration.GetSection("General").GetValue<string>("EnvStr");
 #if DEBUG
 
@@ -69,6 +69,7 @@ namespace CashLoanTool
                     .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme,
                 options =>
                 {
+                    options.Cookie.Expiration = TimeSpan.FromMinutes(120);
                     // access inner page w/o cred will get redirected to this
                     options.LoginPath = new PathString("/Account/Login");
                     options.AccessDeniedPath = new PathString("/Account/Forbidden");
@@ -79,15 +80,30 @@ namespace CashLoanTool
                     options.ReturnUrlParameter = "returnUrl"; 
                 });
             //Compression
-            services.Configure<GzipCompressionProviderOptions>(options => options.Level = System.IO.Compression.CompressionLevel.Optimal);
-            services.AddResponseCompression();
-          
+            services.AddResponseCompression(options =>
+            {
+                options.Providers.Add<GzipCompressionProvider>();
+                //Everything else is too small to compress
+                options.MimeTypes = new[] { "text/css", "application/javascript" };
+            });
+
+            services.Configure<GzipCompressionProviderOptions>(options => 
+            {
+                options.Level = System.IO.Compression.CompressionLevel.Fastest;
+            });
+            
+
             //enforce SSL
             //services.Configure<MvcOptions>(options =>
             //{
             //    options.Filters.Add(new RequireHttpsAttribute());
             //});
             //https://github.com/aspnet/Mvc/issues/4842
+
+            services.AddSession(options =>
+            {
+                options.Cookie.Name = "s";
+            });
             services.AddMvc().AddJsonOptions(options =>
             {
                 //solve auto camel case prop names
@@ -120,6 +136,7 @@ namespace CashLoanTool
             app.UseDeveloperExceptionPage();
             app.UseBrowserLink();
             app.UseStaticFiles();
+            app.UseSession();
             app.UseMvc(routes =>
             {
                 routes.MapRoute(

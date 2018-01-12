@@ -1,13 +1,18 @@
 ﻿@using CashLoanTool.Helper;
-@model CashLoanTool.ViewModels.RequestListingModel
+@using CashLoanTool.EntityModels;
+@model CashLoanTool.ViewModels.RequestListingViewModel
 @{
     ViewData["Title"] = "Main page";
 }
 
 @*inject stuff...*@
-<script>
+<script id="inject">    
     window.model = @Json.Serialize(Model);
-    window.Cities = @Json.Serialize(ViewData[nameof(CityList.Cities)])
+    window.Cities = @Json.Serialize(ViewData[nameof(CityList.Cities)]);
+    window.Ability = @Json.Serialize(ViewData[nameof(Ability)]);
+    //hide injection
+    var element = document.getElementById("inject");
+    element.parentNode.removeChild(element);
 </script>
 <div class="text-center">
     <div id="app">

@@ -6,7 +6,7 @@ using System;
 
 namespace CashLoanTool.Jobs
 {
-    public static class APIScheduler
+    public static class Scheduler
     {
         public static bool Started { get; private set; } = false;
         public static bool Disabled { get; set; } = false;
