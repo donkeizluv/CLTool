@@ -3,8 +3,11 @@
     ViewData["Title"] = "Adm";
 }
 @*inject model*@
-<script>
+<script id="inject">
     window.model = @Json.Serialize(Model);
+    //hide injection
+    var element = document.getElementById("inject");
+    element.parentNode.removeChild(element);
 </script>
 <div class="text-center">
     <div id="app">

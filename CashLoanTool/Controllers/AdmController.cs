@@ -24,12 +24,10 @@ namespace CashLoanTool.Helper
         private static Logger logger = LogManager.GetCurrentClassLogger();
         private CLToolContext _context;
         private IConfiguration _config;
-        private ICustomerAdapter _indus;
-        public AdmController(CLToolContext context, IConfiguration config, ICustomerAdapter indusAdapter)
+        public AdmController(CLToolContext context, IConfiguration config)
         {
             _context = context;
             _config = config;
-            _indus = indusAdapter;
         }
         [HttpGet]
         public async Task<IActionResult> Index()
@@ -51,10 +49,11 @@ namespace CashLoanTool.Helper
             var currentUser = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
             using (_context)
             {
-                if (await _context.User.AnyAsync(u => u.Username == lowerUsername))
+                if (await _context.User.Include(u => u.UserAbility).AnyAsync(u => u.Username == lowerUsername))
                     return Ok(new ResultWrapper() { Message = "Username is already exist!", Valid = false });
                 var user = new User()
                 {
+                    //Username is always lower case for consistent
                     Username = lowerUsername,
                     DivisionName = post.Division,
                     Active = true,
@@ -63,7 +62,7 @@ namespace CashLoanTool.Helper
                 };
                 if(post.ExportRequests)
                 {
-                    user.AddAbility(_context, AbilityNames.ExportRequests);
+                    await user.AddAbility(_context, AbilityNames.ExportRequests);
                 }
                 
                 _context.User.Add(user);
@@ -71,7 +70,38 @@ namespace CashLoanTool.Helper
             }
             return Ok(new ResultWrapper() { Message = $"Sucessfully added: {lowerUsername}", Valid = true });
         }
-        
+        [HttpPost]
+        public async Task<IActionResult> UpdateUser([FromBody] CreateUserPost post)
+        {
+            if (!post.IsValid) return BadRequest();
+            var lowerUsername = post.Username.ToLower();
+            var currentUser = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
+            using (_context)
+            {
+                var crudUser = await _context.User.Include(u => u.UserAbility).FirstOrDefaultAsync(u => u.Username == lowerUsername);
+                if (crudUser == null) return BadRequest();
+                //Update user
+                //Update ExportRq ability
+                if (post.ExportRequests)
+                {
+                    await crudUser.AddAbility(_context, AbilityNames.ExportRequests);
+                }
+                else
+                {
+                    await crudUser.RemoveAblity(_context, AbilityNames.ExportRequests);
+                }
+                //Update Division
+                //Check if different then update
+                if(string.Compare(crudUser.DivisionName, post.Division) != 0)
+                {
+                    if (!await _context.Division.AnyAsync(d => d.DivisionName == post.Division))
+                        return BadRequest();
+                    crudUser.DivisionName = post.Division;
+                }
+                await _context.SaveChangesAsync();
+            }
+            return Ok(new ResultWrapper() { Message = $"Updated: {lowerUsername}", Valid = true });
+        }
         [HttpGet]
         public async Task<IActionResult> FetchModel([FromQuery] int page = 1)
         {

@@ -21,18 +21,12 @@ namespace CashLoanTool.Helper
     public class DocumentController : Controller
     {
         private static Logger logger = LogManager.GetCurrentClassLogger();
-        internal string DocumentFolder
+
+        internal string TemplatePath
         {
             get
             {
-                return _config.GetSection("FileStorage").GetValue<string>("DocumentFolder");
-            }
-        }
-        internal string TemplateName
-        {
-            get
-            {
-                return _config.GetSection("FileStorage").GetValue<string>("TemplateName");
+                return _config.GetSection("Template").GetValue<string>("Path");
             }
         }
 
@@ -70,7 +64,7 @@ namespace CashLoanTool.Helper
                     return Ok("Khách hàng này thiếu thông tin nơi cấp CMND, nơi sinh => liên hệ luu.nhat-hong@hdsaison.com.vn để bổ sung thông tin");
                 }
 
-                var templatePath = EnviromentHelper.GetDocumentFullPath(TemplateName, DocumentFolder);
+                var templatePath = EnviromentHelper.GetCurrentAssemblyPath(TemplatePath);
                 var document = ArgreementMaker.
                     FillTemplate(customerInfo, request.AcctNo, templatePath);
                 var responseStream = new MemoryStream();

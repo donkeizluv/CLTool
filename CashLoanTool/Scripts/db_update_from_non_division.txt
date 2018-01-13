@@ -1,0 +1,24 @@
+﻿--UPDATE FROM NON-DIVISION
+--USER
+INSERT INTO [Test].dbo.[User]
+SELECT Username, [Type], active, [description], 'FS South' FROM CLTool.dbo.[User]
+
+--REQUEST
+SET IDENTITY_INSERT [Test].dbo.[Request] ON
+INSERT INTO [Test].dbo.[Request] (RequestId, [GUID], RequestCreateTime, RequestSendTime, RequestType, LoanNo, [Signature], Username)
+SELECT RequestId, [GUID], RequestCreateTime, RequestSendTime, RequestType, LoanNo, [Signature], Username from CLTool.dbo.[Request]
+SET IDENTITY_INSERT [Test].dbo.[Request] OFF
+
+--CUSTOMER INFO
+SET IDENTITY_INSERT [Test].dbo.CustomerInfo ON
+INSERT INTO [Test].dbo.CustomerInfo (CustomerId, FullName, Gender, dob,pob, IdentityCard, IssueDate, Issuer, Nationality, ContactAddress, HomeAddress, Phone,Professional, Position, CompanyName, CompanyAddress, MartialStatus, RequestId)
+SELECT CustomerId, FullName, Gender, dob,pob, IdentityCard, IssueDate, Issuer, Nationality, ContactAddress, HomeAddress, Phone,Professional, Position, CompanyName, CompanyAddress, MartialStatus, RequestId
+FROM CLTool.dbo.[CustomerInfo]
+SET IDENTITY_INSERT [Test].dbo.CustomerInfo OFF
+
+--RESPONSE
+SET IDENTITY_INSERT [Test].dbo.Response ON
+insert into [Test].dbo.Response (ResponseId, RequestId, ResponseCode, ResponseMessage, AcctNo, AcctName, [Signature], ReceiveTime)
+SELECT ResponseId, RequestId, ResponseCode, ResponseMessage, AcctNo, AcctName, [Signature], ReceiveTime
+FROM CLTool.dbo.Response
+SET IDENTITY_INSERT [Test].dbo.Response OFF

@@ -15,9 +15,22 @@
                 <div class="pull-left"><h5>Nhóm: <b>{{Division}}</b></h5></div>
                 <div class="form-inline">
                     <label class="control-label" for="requestField">Số HĐ:</label>
-                    <input v-bind:disabled="Loading" name="requestField" v-model="ContractId" v-on:keyup="DisallowSend" v-on:keyup.enter="CheckContractClicked" type="text" class="form-control" />
-                    <button v-bind:disabled="Loading" v-on:click="CheckContractClicked" type="button" class="btn btn-primary">Kiểm tra <span class="glyphicon glyphicon-check" aria-hidden="true"></span></button>
-                    <button v-bind:disabled="!AllowSend || Loading" type="button" v-on:click="ShowInputModal" class="btn btn-success">Gửi <span v-bind:disabled="!AllowSend || Loading" class="glyphicon glyphicon-send" aria-hidden="true"></span></button>
+                    <input v-bind:disabled="Loading" name="requestField" 
+                           v-model="ContractId" v-on:keyup="DisallowSend" 
+                           v-on:keyup.enter="CheckContractClicked" 
+                           type="text" class="form-control" />
+                    <button v-bind:disabled="Loading" v-on:click="CheckContractClicked" 
+                            type="button" class="btn btn-primary">
+                        Kiểm tra 
+                        <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
+                    </button>
+                    <button v-bind:disabled="!AllowSend || Loading" 
+                            type="button" 
+                            v-on:click="ShowInputModal" 
+                            v-bind:class="{'btn': !AllowSend || Loading, 'btn btn-success': AllowSend && !Loading}">
+                        Gửi <span v-bind:disabled="!AllowSend || Loading" class="glyphicon glyphicon-send" aria-hidden="true">
+                            </span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -34,7 +47,7 @@
                         <td colspan="999">
 
                             <div class="pull-right">
-                                <button class="btn btn-primary" v-show="CanExport" v-on:click="ExportRequests">Export <i class="fa  fa-download" aria-hidden="true"></i></button>
+                                <button class="btn btn-primary" v-bind:disabled="!CanExport" v-on:click="ExportRequests">Export <i class="fa fa-download" aria-hidden="true"></i></button>
                             </div>
                         </td>
                     </tr>
@@ -61,9 +74,6 @@
                         <td class="table-td" nowrap><span class="table-cell-content">{{request.RequestCreateTimeString}}</span></td>
                         <td class="table-td" nowrap><span class="table-cell-content">{{request.Username}}</span></td>
                         <td class="table-td" nowrap>
-                            <!--<button v-show="request.HasValidAcctNo" v-on:click="GetDocument(request)" class="btn btn-link">
-                        <span class="fa fa-print onepointfive-em"></span>
-                    </button>-->
                             <button v-show="request.HasValidAcctNo" v-on:click="OpenContractPrinting(request.RequestId)" class="btn btn-link">
                                 <span class="fa fa-print onepointfive-em"></span>
                             </button>
@@ -236,6 +246,11 @@
             },
             ClearStatus: function () {
                 this.$data.StatusMessage = '';
+                this.$data.StatusTextClass = '';
+            },
+            SetStatus: function (status, className) {
+                this.$data.Status = status;
+                this.$data.StatusTextClass = className;
             },
             ClearContractIdField: function () {
                 this.$data.ContractId = '';

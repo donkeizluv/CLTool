@@ -1,0 +1,256 @@
+﻿USE [CLTool]
+GO
+/****** Object:  UserDefinedFunction [dbo].[ExportRequests]    Script Date: 1/12/2018 6:23:59 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE FUNCTION [dbo].[ExportRequests]()
+RETURNS @rqs TABLE 
+(
+    AcctNo nvarchar(100) NULL, 
+    LoanNo nvarchar(100) NULL, 
+    CustomerName nvarchar(100) NULL, 
+    IdentityCard nvarchar(100) NULL, 
+    Gender nvarchar(100) NULL,
+	RequestCreateTime datetime NULL,
+	Username nvarchar(100) NULL, 
+	ResponseCode nvarchar(100) NULL
+)
+AS
+BEGIN
+	INSERT INTO @rqs
+	SELECT AcctNo, LoanNo, FullName 'CustomerName', IdentityCard, Gender, RequestCreateTime, Username, ResponseCode
+	FROM Request LEFT JOIN Response ON Request.RequestId = Response.ResponseId
+	INNER JOIN CustomerInfo ON CustomerInfo.RequestId = Request.RequestId
+	RETURN;
+END
+GO
+/****** Object:  Table [dbo].[Ability]    Script Date: 1/12/2018 6:23:59 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Ability](
+	[Name] [nvarchar](50) NOT NULL,
+	[Description] [nvarchar](50) NULL,
+ CONSTRAINT [PK_Ability] PRIMARY KEY CLUSTERED 
+(
+	[Name] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[AccountType]    Script Date: 1/12/2018 6:23:59 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[AccountType](
+	[Type] [varchar](50) NOT NULL,
+	[Description] [nvarchar](50) NOT NULL,
+ CONSTRAINT [PK_AccountType] PRIMARY KEY CLUSTERED 
+(
+	[Type] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Branch]    Script Date: 1/12/2018 6:23:59 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Branch](
+	[BranchId] [int] NOT NULL,
+	[BranchName] [nvarchar](50) NOT NULL,
+ CONSTRAINT [PK_Branch] PRIMARY KEY CLUSTERED 
+(
+	[BranchId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[CustomerInfo]    Script Date: 1/12/2018 6:23:59 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CustomerInfo](
+	[CustomerId] [int] IDENTITY(1,1) NOT NULL,
+	[FullName] [nvarchar](40) NOT NULL,
+	[Gender] [nvarchar](1) NOT NULL,
+	[DOB] [date] NOT NULL,
+	[POB] [nvarchar](50) NULL,
+	[IdentityCard] [nvarchar](20) NOT NULL,
+	[IssueDate] [date] NOT NULL,
+	[Issuer] [nvarchar](50) NULL,
+	[Nationality] [nvarchar](50) NOT NULL,
+	[ContactAddress] [nvarchar](400) NULL,
+	[HomeAddress] [nvarchar](400) NOT NULL,
+	[Phone] [nvarchar](20) NOT NULL,
+	[Professional] [nvarchar](150) NULL,
+	[Position] [nvarchar](150) NULL,
+	[CompanyName] [nvarchar](200) NULL,
+	[CompanyAddress] [nvarchar](400) NULL,
+	[MartialStatus] [nvarchar](1) NULL,
+	[RequestId] [int] NOT NULL,
+ CONSTRAINT [PK_CustomerIfo] PRIMARY KEY CLUSTERED 
+(
+	[CustomerId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Division]    Script Date: 1/12/2018 6:23:59 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Division](
+	[DivisionName] [nvarchar](50) NOT NULL,
+	[BranchId] [int] NULL,
+	[Description] [nvarchar](50) NULL,
+ CONSTRAINT [PK_Division] PRIMARY KEY CLUSTERED 
+(
+	[DivisionName] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Request]    Script Date: 1/12/2018 6:23:59 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Request](
+	[RequestId] [int] IDENTITY(1,1) NOT NULL,
+	[GUID] [nvarchar](36) NULL,
+	[RequestCreateTime] [datetime] NOT NULL,
+	[RequestSendTime] [datetime] NULL,
+	[RequestType] [nvarchar](50) NOT NULL,
+	[LoanNo] [nvarchar](20) NOT NULL,
+	[Signature] [nvarchar](300) NULL,
+	[Username] [nvarchar](50) NOT NULL,
+ CONSTRAINT [PK_Request] PRIMARY KEY CLUSTERED 
+(
+	[RequestId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Response]    Script Date: 1/12/2018 6:23:59 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Response](
+	[ResponseId] [int] IDENTITY(1,1) NOT NULL,
+	[RequestId] [int] NOT NULL,
+	[ResponseCode] [nvarchar](10) NOT NULL,
+	[ResponseMessage] [nvarchar](200) NULL,
+	[AcctNo] [nvarchar](20) NULL,
+	[AcctName] [nvarchar](100) NULL,
+	[Signature] [nvarchar](300) NULL,
+	[ReceiveTime] [datetime] NOT NULL,
+ CONSTRAINT [PK_Response] PRIMARY KEY CLUSTERED 
+(
+	[ResponseId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[User]    Script Date: 1/12/2018 6:23:59 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[User](
+	[Username] [nvarchar](50) NOT NULL,
+	[Type] [varchar](50) NOT NULL,
+	[Active] [bit] NOT NULL,
+	[Description] [nvarchar](50) NOT NULL,
+	[DivisionName] [nvarchar](50) NOT NULL,
+ CONSTRAINT [PK_Users_1] PRIMARY KEY CLUSTERED 
+(
+	[Username] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[UserAbility]    Script Date: 1/12/2018 6:23:59 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[UserAbility](
+	[Ability] [nvarchar](50) NOT NULL,
+	[Username] [nvarchar](50) NOT NULL,
+	[Parameter1] [nvarchar](100) NULL,
+	[Parameter2] [nvarchar](100) NULL,
+ CONSTRAINT [PK_UserAbility] PRIMARY KEY CLUSTERED 
+(
+	[Ability] ASC,
+	[Username] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+ALTER TABLE [dbo].[CustomerInfo]  WITH CHECK ADD  CONSTRAINT [FK_CustomerInfo_Request] FOREIGN KEY([RequestId])
+REFERENCES [dbo].[Request] ([RequestId])
+GO
+ALTER TABLE [dbo].[CustomerInfo] CHECK CONSTRAINT [FK_CustomerInfo_Request]
+GO
+ALTER TABLE [dbo].[Division]  WITH CHECK ADD  CONSTRAINT [FK_Division_Branch] FOREIGN KEY([BranchId])
+REFERENCES [dbo].[Branch] ([BranchId])
+GO
+ALTER TABLE [dbo].[Division] CHECK CONSTRAINT [FK_Division_Branch]
+GO
+ALTER TABLE [dbo].[Request]  WITH CHECK ADD  CONSTRAINT [FK_Request_User] FOREIGN KEY([Username])
+REFERENCES [dbo].[User] ([Username])
+GO
+ALTER TABLE [dbo].[Request] CHECK CONSTRAINT [FK_Request_User]
+GO
+ALTER TABLE [dbo].[Response]  WITH CHECK ADD  CONSTRAINT [FK_Response_Request] FOREIGN KEY([RequestId])
+REFERENCES [dbo].[Request] ([RequestId])
+GO
+ALTER TABLE [dbo].[Response] CHECK CONSTRAINT [FK_Response_Request]
+GO
+ALTER TABLE [dbo].[User]  WITH CHECK ADD  CONSTRAINT [FK_User_Division] FOREIGN KEY([DivisionName])
+REFERENCES [dbo].[Division] ([DivisionName])
+GO
+ALTER TABLE [dbo].[User] CHECK CONSTRAINT [FK_User_Division]
+GO
+ALTER TABLE [dbo].[User]  WITH CHECK ADD  CONSTRAINT [FK_Users_AccountType] FOREIGN KEY([Type])
+REFERENCES [dbo].[AccountType] ([Type])
+GO
+ALTER TABLE [dbo].[User] CHECK CONSTRAINT [FK_Users_AccountType]
+GO
+ALTER TABLE [dbo].[UserAbility]  WITH CHECK ADD  CONSTRAINT [FK_UserAbility_Ability] FOREIGN KEY([Ability])
+REFERENCES [dbo].[Ability] ([Name])
+GO
+ALTER TABLE [dbo].[UserAbility] CHECK CONSTRAINT [FK_UserAbility_Ability]
+GO
+ALTER TABLE [dbo].[UserAbility]  WITH CHECK ADD  CONSTRAINT [FK_UserAbility_User] FOREIGN KEY([Username])
+REFERENCES [dbo].[User] ([Username])
+GO
+ALTER TABLE [dbo].[UserAbility] CHECK CONSTRAINT [FK_UserAbility_User]
+GO
+
+
+--Emum
+INSERT [dbo].[AccountType] ([Type], [Description]) VALUES (N'Admin', N'Administrator')
+GO
+INSERT [dbo].[AccountType] ([Type], [Description]) VALUES (N'User', N'Normal user')
+GO
+INSERT [dbo].[Branch] ([BranchId], [BranchName]) VALUES (1, N'South')
+GO
+INSERT [dbo].[Branch] ([BranchId], [BranchName]) VALUES (2, N'North')
+GO
+INSERT [dbo].[Division] ([DivisionName], [BranchId], [Description]) VALUES (N'North DS', 2, NULL)
+GO
+INSERT [dbo].[Division] ([DivisionName], [BranchId], [Description]) VALUES (N'North FS', 2, NULL)
+GO
+INSERT [dbo].[Division] ([DivisionName], [BranchId], [Description]) VALUES (N'South DS', 1, NULL)
+GO
+INSERT [dbo].[Division] ([DivisionName], [BranchId], [Description]) VALUES (N'South FS', 1, NULL)
+GO
+INSERT [dbo].[Ability] ([Name], [Description]) VALUES (N'ExportRequests', N'Export all requests to file')
+GO
+

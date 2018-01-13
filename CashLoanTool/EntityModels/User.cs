@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 
 namespace CashLoanTool.EntityModels
@@ -17,9 +18,13 @@ namespace CashLoanTool.EntityModels
         public string Description { get; set; }
         public string DivisionName { get; set; }
 
+        [JsonIgnore]
         public Division DivisionNameNavigation { get; set; }
+        [JsonIgnore]
         public AccountType TypeNavigation { get; set; }
+        [JsonIgnore]
         public ICollection<Request> Request { get; set; }
+        [JsonIgnore]
         public ICollection<UserAbility> UserAbility { get; set; }
     }
 }
