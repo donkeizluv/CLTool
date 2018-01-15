@@ -115,7 +115,7 @@ namespace CashLoanTool.Helper
         }
 
         [HttpGet]
-        public async Task<IActionResult> FetchModel([FromQuery] int page = 1, [FromQuery] string by = "AcctNo", [FromQuery] bool asc = true)
+        public async Task<IActionResult> FetchModel([FromQuery] int page = 1, [FromQuery] string by = "RequestId", [FromQuery] bool asc = false)
         {
             using (_context)
             {

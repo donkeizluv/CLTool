@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using NLog;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -20,36 +19,38 @@ namespace CashLoanTool.EntityModels
             }
         }
         
-        public async Task AddAbility(CLToolContext context, string abilityName)
+        public bool AddAbilityIfNotHas(CLToolContext context, string abilityName)
         {
-            var ability = await context.Ability.FirstOrDefaultAsync(a => a.Name == abilityName);
-            if (ability == null) throw new InvalidOperationException($"Ablity: {abilityName} doesnt exist!");
+            var ability = context.Ability.FirstOrDefault(a => a.Name == abilityName);
+            if (ability == null) throw new InvalidOperationException($"Cant find Ablity: {abilityName}");
 
             //Find if user currently have ability
             //Incase include includes all UserAbility so we check Username in UserAbility again
-            if (await context.UserAbility.AnyAsync(a => a.Ability == abilityName && a.Username == Username))
+            if (UserAbility.Any(a => a.Ability == abilityName))
             {
                 //Already have -> ignore
                 logger.Info($"Username: {Username} already have {abilityName} => skip");
-                return;
+                return false;
             }
-            UserAbility.Add(new UserAbility() { Ability = abilityName });
+            UserAbility.Add(new UserAbility() { AbilityNavigation = ability });
+            return true;
         }
-        public async Task RemoveAblity(CLToolContext context, string abilityName)
+        public bool RemoveAblityIfHas(CLToolContext context, string abilityName)
         {
             //Find
             //Incase include includes all UserAbility so we check Username in UserAbility again
-            var userAbility = await context.UserAbility.FirstOrDefaultAsync(a => a.Ability == abilityName && a.Username == Username);
+            var userAbility = UserAbility.FirstOrDefault(a => a.Ability == abilityName);
             //Remove if having
             if (userAbility == null)
             {
                 //User doesnt have ability
                 logger.Info($"Username: {Username} doesnt have {abilityName} => skip");
-                return;
+                return false; 
             }
             //EF only allow remove on root DbSet
             //UserAbility.Remove(userAbility);
             context.UserAbility.Remove(userAbility);
+            return true;
         }
     }
 }

@@ -132,7 +132,7 @@
                 ContractId: '',
                 StatusMessage: '',
                 StatusTextClass: '',
-                OrderBy: 'RequestId', //default
+                OrderBy: null,
                 OrderAsc: true,
                 Loading: false, //prevent clicking while loading new content
                 //listing, nav
@@ -283,12 +283,12 @@
                 if (this.$data.Loading) return;
                 this.ClearAllControls();
                 this.$data.Loading = true; //prevent click spamming
-                //if already ordery by this -> change Asc
+                //Flip order by
                 if (this.$data.OrderBy == orderBy) {
                     this.$data.OrderAsc = !this.$data.OrderAsc;
                 }
                 else {
-                    //reset Asc
+                    //Order this column
                     this.$data.OrderBy = orderBy;
                     this.$data.OrderAsc = true;
                 }
@@ -397,10 +397,10 @@
                 //console.log(orderBy);
                 if (orderBy == this.$data.OrderBy) {
                     if (this.$data.OrderAsc)
-                        return "&dtrif;";
-                    return "&utrif;";
+                        return '&utrif;';
+                    return '&dtrif;';
                 }
-                return "";
+                return '';
             }
         }
     };

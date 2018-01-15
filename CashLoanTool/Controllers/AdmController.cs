@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using CashLoanTool.Const;
 using CashLoanTool.EntityModels;
 using CashLoanTool.Filters;
-using CashLoanTool.Indus;
 using CashLoanTool.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -43,12 +42,15 @@ namespace CashLoanTool.Helper
         {
             if(!post.IsValid) return Ok(new ResultWrapper() { Message = "Invalid request", Valid = false });
             var lowerUsername = post.Username.ToLower();
-
+            //Check username
             if (string.IsNullOrEmpty(lowerUsername) || lowerUsername.Length > 50 || Regex.IsMatch(lowerUsername, @"[^0-9a-zA-Z-.]+"))
                 return BadRequest();
             var currentUser = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
             using (_context)
             {
+                //Check division name
+                if (!await _context.Division.AnyAsync(d => d.DivisionName == post.Division))
+                    return BadRequest();
                 if (await _context.User.Include(u => u.UserAbility).AnyAsync(u => u.Username == lowerUsername))
                     return Ok(new ResultWrapper() { Message = "Username is already exist!", Valid = false });
                 var user = new User()
@@ -62,7 +64,7 @@ namespace CashLoanTool.Helper
                 };
                 if(post.ExportRequests)
                 {
-                    await user.AddAbility(_context, AbilityNames.ExportRequests);
+                    user.AddAbilityIfNotHas(_context, AbilityNames.ExportRequests);
                 }
                 
                 _context.User.Add(user);
@@ -79,24 +81,23 @@ namespace CashLoanTool.Helper
             using (_context)
             {
                 var crudUser = await _context.User.Include(u => u.UserAbility).FirstOrDefaultAsync(u => u.Username == lowerUsername);
-                if (crudUser == null) return BadRequest();
                 //Update user
-                //Update ExportRq ability
-                if (post.ExportRequests)
-                {
-                    await crudUser.AddAbility(_context, AbilityNames.ExportRequests);
-                }
-                else
-                {
-                    await crudUser.RemoveAblity(_context, AbilityNames.ExportRequests);
-                }
-                //Update Division
-                //Check if different then update
-                if(string.Compare(crudUser.DivisionName, post.Division) != 0)
+                if (crudUser == null) return BadRequest();
+                //If Division changed => update
+                if (string.Compare(crudUser.DivisionName, post.Division) != 0)
                 {
                     if (!await _context.Division.AnyAsync(d => d.DivisionName == post.Division))
                         return BadRequest();
                     crudUser.DivisionName = post.Division;
+                }
+                //Update ExportRq ability
+                if (post.ExportRequests)
+                {
+                    crudUser.AddAbilityIfNotHas(_context, AbilityNames.ExportRequests);
+                }
+                else
+                {
+                    crudUser.RemoveAblityIfHas(_context, AbilityNames.ExportRequests);
                 }
                 await _context.SaveChangesAsync();
             }

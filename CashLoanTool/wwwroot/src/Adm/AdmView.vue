@@ -22,7 +22,6 @@
                 <tbody>
                     <tr v-for="user in Users">
                         <td class="table-td" nowrap><span class="table-cell-content">{{user.Username}}</span></td>
-                        <!--<td class="table-td" nowrap><span class="table-cell-content">{{user.DivisionName}}</span></td>-->
                         <td class="table-td" nowrap>
                             <span class="table-cell-content">
                                 <select class="form-control control-sm" 
@@ -33,7 +32,6 @@
                                 </select>
                             </span>
                         </td>
-                        <!--<td class="table-td" nowrap><span class="table-cell-content">{{user.AllowExport? "Yes" : "No"}}</span></td>-->
                         <td>
                             <div class="checkbox">
                                 <input type="checkbox" class="no-margin"
@@ -243,6 +241,8 @@
                         that.SetStatus(message, 'status-success');
                         //Remove changed flag in Users
                         that.$data.Users[userIndex].Changed = false;
+                        //Makes sure button state gets rendered correctly
+                        that.$forceUpdate()
                     }
                     else {
                         that.SetStatus(message, 'status-danger');

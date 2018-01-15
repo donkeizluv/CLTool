@@ -30,7 +30,7 @@ namespace CashLoanTool.Helper
 
         [HttpGet]
         [Authorize]
-        public async Task<IActionResult> Index([FromQuery] int page = 1, [FromQuery] string by = "RequestId", [FromQuery] bool asc = true)
+        public async Task<IActionResult> Index([FromQuery] int page = 1, [FromQuery] string by = "RequestId", [FromQuery] bool asc = false)
         {
             //string role = string.Empty;
             //var claim = HttpContext.User.FindFirst(ClaimTypes.Role);
