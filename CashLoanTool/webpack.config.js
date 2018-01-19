@@ -8,7 +8,7 @@ module.exports = {
     },
     output: {
         path: __dirname + "/wwwroot/dist/",
-        filename: "[name].min.js"
+        filename: "[name]_[chunkhash].js"
     },
     module: {
         loaders: [
@@ -26,7 +26,7 @@ module.exports = {
             {
                 test: /\.vue$/,
                 loader: 'vue-loader'
-            },
+            }
         ]
     },
     plugins: [
@@ -36,4 +36,4 @@ module.exports = {
             }
         })
     ]
-}
+};

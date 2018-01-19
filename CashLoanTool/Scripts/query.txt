@@ -61,9 +61,11 @@ tawd.szlname || ' ' || tawd.szmname || ' ' || tawd.szfname "FullName"
     AND WFT.SZWORKFLOWDRIVER = tawd.SZLOANAPPLNNO
     AND WTA.SZACTIVITYCODE = WFA.SZACTIVITYCODE
     AND WTA.szactivitycode in ('SAN_LETT')
-  ),'Unavailable')   "Status"    
+  ),'Unavailable')   "Status"
+  ,FTOTLOANAMT "LoanAmount"
 FROM       
   tr_applicationworkdetails@GLM_LOS tawd
+  , TR_LOANAPPLICATIONDETAILS@GLM_LOS LAD
   ,(SELECT OAD.SZADDRESS1 || ',' ||
                NVL2(TRIM(OAD.SZLANDMARK), TRIM(OAD.SZLANDMARK) || ',', '') ||
                NVL2(TRIM(OAD.SZSHORTADDRESS2),
@@ -100,6 +102,7 @@ FROM
        ) rs_addr
        ,GENERALCONDITIONMASTER@GLM_LOS gen
 WHERE 1=1
+AND lad.szloanapplnno = tawd.szloanapplnno
 AND tawd.szpartytype = 'BORROWER' 
 AND gen.SZSYSTEMNAME = 'LOS'
 AND gen.SZCONDITION = 'PROFESSION'

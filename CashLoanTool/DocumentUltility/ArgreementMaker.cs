@@ -1,6 +1,7 @@
 ﻿using Aspose.Words;
 using CashLoanTool.EntityModels;
 using GemBox.Document;
+using QRCoder;
 using System;
 using System.IO;
 
@@ -8,6 +9,7 @@ namespace CashLoanTool.DocumentUltility
 {
     public static class ArgreementMaker
     {
+        public const double QRSize = 30;
         public const string DateFormat = "dd/MM/yyyy";
         //Use Aspose to save Pdf to workaround gembox's word wrap bug
         public static void AsposePdfStream(DocumentModel model, Stream outputStream)
@@ -19,66 +21,19 @@ namespace CashLoanTool.DocumentUltility
             asposeDoc.Save(outputStream, SaveFormat.Pdf);
             outputStream.Position = 0;
         }
-
-        //Its a pain in the ass to replace with custom style using Aspose
-        //public static Document FillTemplateAspose(CustomerInfo customer, string acctNo, string issuer, string pob, string templatePath)
-        //{
-        //    var document = new Document();
-        //    // Find and replace text.
-        //    document.Range.Replace("{name}", customer.FullName, false, false);
-        //    //document.Content.Replace("{pob}", customer.Pob); //Indus cant supply this
-        //    document.Range.Replace("{pob}", pob, false, false);
-        //    document.Range.Replace("{id}", customer.IdentityCard, false, false);
-        //    document.Range.Replace("{id_date}", customer.IssueDate.ToString(DateFormat), false, false);
-        //    //document.Content.Replace("{id_issuer}", customer.Issuer); //Indus cant supply this
-        //    document.Range.Replace("{id_issuer}", issuer, false, false);
-        //    document.Range.Replace("{dob}", customer.Dob.ToString(DateFormat), false, false);
-        //    document.Range.Replace("{addr}", (customer.HomeAddress ?? string.Empty), false, false);
-        //    //IF no CT info then use RS instead
-        //    string ctInfo = customer.ContactAddress ?? string.Empty;
-        //    if (string.IsNullOrEmpty(customer.ContactAddress))
-        //        ctInfo = customer.HomeAddress;
-        //    document.Range.Replace("{ct_addr}", ctInfo, false, false);
-        //    document.Range.Replace("{occu}", customer.Professional ?? string.Empty, false, false);
-        //    document.Range.Replace("{pos}", customer.Position ?? string.Empty, false, false);
-        //    document.Range.Replace("{nat}", customer.Nationality, false, false);
-        //    document.Range.Replace("{phone}", customer.Phone, false, false);
-        //    document.Range.Replace("{acct_no}", acctNo, false, false);
-        //    if (GenderStringToBool(customer.Gender))
-        //    {
-        //        document.Range.Replace("{ma}", customer.Phone, false, false);
-        //        document.Range.Replace("{fe}", customer.Phone, false, false);
-        //        //ReplaceWithCustomStyle(document, "@fe", "o", "Wingdings");
-        //        //ReplaceWithCustomStyle(document, "@ma", "S", "Wingdings 2");
-        //    }
-        //    else
-        //    {
-        //        ReplaceWithCustomStyle(document, "@fe", "T", "Wingdings 2");
-        //        ReplaceWithCustomStyle(document, "@ma", "o", "Wingdings");
-        //    }
-        //    return document;
-        //}
-
-    //doesnt work
-    //TextRun is shit
-
-    private static void ReplaceWithCustomStyle(Document doc, string text, string replace, string fontName)
+        public static void GemboxPdfStream(DocumentModel model, Stream outputStream)
         {
-            foreach (Aspose.Words.Run runNode in doc.GetChildNodes(NodeType.Run, true))
-            {
-                if (!runNode.Text.Contains(text)) continue;
-                var builder = new DocumentBuilder(doc);
-                builder.MoveTo(runNode);
-                builder.Font.Name = fontName;
-                builder.Write(replace);
-                runNode.Remove();
-            }
+            model.Save(outputStream, SaveOptions.DocxDefault);
         }
-        public static DocumentModel FillTemplate(CustomerInfo customer, string acctNo, string templatePath)
+
+        public static DocumentModel FillTemplate(CustomerInfo customer, string loanNo, string acctNo, string templatePath)
         {
             var document = DocumentModel.Load(templatePath, DocxLoadOptions.DocxDefault);
-            document.ViewOptions.ViewType = ViewType.FullScreen;
-            // Find and replace text.
+
+            //InsertQRCode(document, loanNo);
+            TickGender(document, customer.Gender);
+
+            // Find and replace info place holder
             document.Content.Replace("{name}", customer.FullName);
             //document.Content.Replace("{pob}", customer.Pob); //Indus cant supply this
             document.Content.Replace("{pob}", customer.Pob);
@@ -98,23 +53,62 @@ namespace CashLoanTool.DocumentUltility
             document.Content.Replace("{nat}", customer.Nationality);
             document.Content.Replace("{phone}", customer.Phone);
             document.Content.Replace("{acct_no}", acctNo);
-            
-            if (GenderStringToBool(customer.Gender))
+            return document;
+        }
+        private static void TickGender(DocumentModel model, string gender)
+        {
+            if (GenderStringToBool(gender))
             {
-                foreach (ContentRange item in document.Content.Find("{ma}"))
+                foreach (ContentRange item in model.Content.Find("{ma}"))
+                {
                     item.LoadText("S", new CharacterFormat() { FontName = "Wingdings 2" });
-                foreach (ContentRange item in document.Content.Find("{fe}"))
+                }
+
+                foreach (ContentRange item in model.Content.Find("{fe}"))
                     item.LoadText("o", new CharacterFormat() { FontName = "Wingdings" });
             }
             else
             {
-                foreach (ContentRange item in document.Content.Find("{fe}"))
+                foreach (ContentRange item in model.Content.Find("{fe}"))
                     item.LoadText("T", new CharacterFormat() { FontName = "Wingdings 2" });
-                foreach (ContentRange item in document.Content.Find("{ma}"))
+                foreach (ContentRange item in model.Content.Find("{ma}"))
                     item.LoadText("o", new CharacterFormat() { FontName = "Wingdings" });
             }
-            return document;
         }
+        private static bool InsertQRCode(DocumentModel model, string qr)
+        {
+            //Insert QR
+            foreach (var element in model.GetChildElements(true, ElementType.Picture))
+            {
+                if (element.ElementType != ElementType.Picture)
+                    continue;
+                var pic = (Picture)element;
+                //Find picture place holder
+                if (string.Compare(pic.Metadata.Description, "{qr}") != 0) continue;
+                var qrStream = CreateQR(qr);
+                var para = (GemBox.Document.Paragraph)pic.Parent;
+                //Get place holder layout
+                var layout = pic.Layout;
+                //Delete place holder
+                pic.Content.Delete();
+                //Set QR
+                para.Inlines.Add(new Picture(model, qrStream, PictureFormat.Png, layout));
+                //Done
+                return true;
+            }
+            return false;
+        }
+
+        private static MemoryStream CreateQR(string text)
+        {
+            var qrGenerator = new QRCodeGenerator();
+            var qrCodeData = qrGenerator.CreateQrCode(text, QRCodeGenerator.ECCLevel.L);
+            var qrCode = new QRCode(qrCodeData);
+            var memoryStream = new MemoryStream();
+            qrCode.GetGraphic(20).Save(memoryStream, System.Drawing.Imaging.ImageFormat.Png);
+            return memoryStream;
+        }
+
         private static bool GenderStringToBool(string gender)
         {
             switch (gender.ToUpper())

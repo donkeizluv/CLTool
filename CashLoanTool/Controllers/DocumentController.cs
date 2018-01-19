@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using CashLoanTool.EntityModels;
-using CashLoanTool.Helper;
 using System.IO;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Configuration;
@@ -10,7 +9,6 @@ using CashLoanTool.DocumentUltility;
 using NLog;
 using CashLoanTool.Filters;
 using System;
-using CashLoanTool.ViewModels;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -66,7 +64,7 @@ namespace CashLoanTool.Helper
 
                 var templatePath = EnviromentHelper.GetCurrentAssemblyPath(TemplatePath);
                 var document = ArgreementMaker.
-                    FillTemplate(customerInfo, request.AcctNo, templatePath);
+                    FillTemplate(customerInfo, request.LoanNo, request.AcctNo, templatePath);
                 var responseStream = new MemoryStream();
                 //document.Save(responseStream, new PdfSaveOptions() { Permissions = PdfPermissions.All });
                 //to return file use File()
