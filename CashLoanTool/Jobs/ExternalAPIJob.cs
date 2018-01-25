@@ -41,7 +41,9 @@ namespace CashLoanTool.Jobs
                         return;
                     }
                     logger.Info("New requests count: " + newRequests.Count().ToString());
-                    newRequests = newRequests.Include(r => r.CustomerInfo);
+                    newRequests = newRequests.Include(customer => customer.CustomerInfo)
+                        .Include(username => username.UsernameNavigation)
+                        .ThenInclude(division => division.DivisionNameNavigation);
                     //ToList to close read connection
                     foreach (var request in newRequests.ToList())
                     {
@@ -110,6 +112,7 @@ namespace CashLoanTool.Jobs
                 var jobEx = new JobExecutionException(ex);
                 //Stop all trigger
                 jobEx.UnscheduleAllTriggers = true;
+                EnviromentHelper.IsSchedulerDown = true;
                 //Apply effect
                 throw jobEx;
             }

@@ -22,6 +22,7 @@ namespace CashLoanTool.EntityModels
         public string CompanyName { get; set; }
         public string CompanyAddress { get; set; }
         public string MartialStatus { get; set; }
+        public decimal? LoanAmount { get; set; }
         public int RequestId { get; set; }
 
         public Request Request { get; set; }

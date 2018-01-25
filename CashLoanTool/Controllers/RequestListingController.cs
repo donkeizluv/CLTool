@@ -1,19 +1,20 @@
 ﻿using System;
-using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using CashLoanTool.BussinessRules;
+using CashLoanTool.Logic;
 using CashLoanTool.EntityModels;
 using CashLoanTool.Filters;
-using CashLoanTool.Helper;
 using CashLoanTool.Indus;
-using CashLoanTool.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using NLog;
+using CashLoanTool.ViewModels;
+using System.Linq;
+using CashLoanTool.Const;
+using System.Collections.Generic;
 
 namespace CashLoanTool.Helper
 {
@@ -43,8 +44,9 @@ namespace CashLoanTool.Helper
                 return BadRequest();
             using (_context)
             {
+                _context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
                 //Check if any request with this contract id exists
-                var rq = await _context.Request.SingleOrDefaultAsync(r => string.Compare(r.LoanNo, contractId, true) == 0);
+                var rq = await _context.Request.SingleOrDefaultAsync(r => r.LoanNo == contractId);
                 if(rq != null)
                 {
                     //Not valid
@@ -119,80 +121,18 @@ namespace CashLoanTool.Helper
         {
             using (_context)
             {
-#if DEBUG
-                return Ok(await GetModel(_context, SessionStore.ForceGetDevision(this.HttpContext, _context), page, by, asc));
-#else
-                return Ok(await GetModel(_context, SessionStore.ForceGetDevision(this.HttpContext, _context), page, by, asc));
-                //return Ok(await GetModel(_context, SessionStore.GetDevision(this.HttpContext), page, by, asc));
-#endif
-
+               _context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+                return Ok(await CreateModel(_context, HttpContext, page, by, asc));
             }
         }
-
-        private static IOrderedQueryable<Request> OrderTranslater(IQueryable<Request> query, string orderBy, bool asc)
+        //Move ability related logic to somewhere else?
+        internal static async Task<RequestListingViewModel> CreateModel(CLToolContext context, HttpContext httpContext, int pageNum, string orderBy, bool asc)
         {
-            switch (orderBy)
+            if (httpContext.User.HasClaim(c => c.Value == AbilityNames.SeeAllRequests))
             {
-                case "RequestCreateTime":
-                    if(!asc)
-                        return query.OrderByDescending(r => r.RequestCreateTime);
-                    return query.OrderBy(r => r.RequestCreateTime);
-                case "RequestId":
-                    if (!asc)
-                        return query.OrderByDescending(r => r.RequestId);
-                    return query.OrderBy(r => r.RequestId);
-                //Others are not NYI
-                default:
-                    return query.OrderBy(r => r.RequestId);
+                return await ModelFactory.CreateRequestListingModel(RequestsQuery.AllRequests(context), pageNum, orderBy, asc);
             }
-        }
-        internal static async Task<RequestListingViewModel> GetModel(CLToolContext context, string division, int pageNum, string orderBy, bool asc)
-        {
-            int getPage = pageNum < 1 ? 1 : pageNum;
-            int excludedRows = (getPage - 1) * RequestListingViewModel.ItemPerPage;
-            //User can only see rq from same Division
-            var query = context.Request.Where(r => r.UsernameNavigation.DivisionName == division);
-            var totalRows = await query.CountAsync();
-            var ordered = OrderTranslater(query, orderBy, asc);
-            var model = new RequestListingViewModel
-            {
-                Requests = await ordered
-                                .Skip(excludedRows)
-                                .Take(RequestListingViewModel.ItemPerPage)
-                                .Include(r => r.CustomerInfo)
-                                .Include(r => r.Response)
-                                .ToListAsync(),
-                OnPage = pageNum,
-                OrderAsc = asc,
-                OrderBy = orderBy,
-                Division = division
-            };
-            model.UpdatePagination(totalRows);
-            return model;
-        }
-        internal static async Task<RequestListingViewModel> GetModelByUser(CLToolContext context, string userName, int pageNum, string orderBy, bool asc)
-        {
-            int getPage = pageNum < 1 ? 1 : pageNum;
-            int excludedRows = (getPage - 1) * RequestListingViewModel.ItemPerPage;
-            //var user = context.User.SingleOrDefaultAsync(u => u.Username == userName);
-            //User can only see own requests
-            var query = context.Request.Where(r => r.Username == userName);
-            var totalRows = await query.CountAsync();
-            var ordered = OrderTranslater(query, orderBy, asc);
-            var model = new RequestListingViewModel
-            {
-                Requests = await ordered
-                                .Skip(excludedRows)
-                                .Take(RequestListingViewModel.ItemPerPage)
-                                .Include(r => r.CustomerInfo)
-                                .Include(r => r.Response)
-                                .ToListAsync(),
-                OnPage = pageNum,
-                OrderAsc = asc,
-                OrderBy = orderBy,
-            };
-            model.UpdatePagination(totalRows);
-            return model;
+            return await ModelFactory.CreateRequestListingModel(RequestsQuery.RequestsByDivision(context, SessionStore.ForceGetDevision(httpContext, context)), pageNum, orderBy, asc);
         }
     }
 }

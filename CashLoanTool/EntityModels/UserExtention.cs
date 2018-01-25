@@ -18,8 +18,16 @@ namespace CashLoanTool.EntityModels
                 return ability != null;
             }
         }
-        
-        public bool AddAbilityIfNotHas(CLToolContext context, string abilityName)
+        public bool CanSeeAllRequests
+        {
+            get
+            {
+                var ability = UserAbility.FirstOrDefault(a => a.Ability == AbilityNames.SeeAllRequests);
+                return ability != null;
+            }
+        }
+
+        public bool TryAddAbility(CLToolContext context, string abilityName)
         {
             var ability = context.Ability.FirstOrDefault(a => a.Name == abilityName);
             if (ability == null) throw new InvalidOperationException($"Cant find Ablity: {abilityName}");
@@ -35,7 +43,7 @@ namespace CashLoanTool.EntityModels
             UserAbility.Add(new UserAbility() { AbilityNavigation = ability });
             return true;
         }
-        public bool RemoveAblityIfHas(CLToolContext context, string abilityName)
+        public bool TryRemoveAbility(CLToolContext context, string abilityName)
         {
             //Find
             //Incase include includes all UserAbility so we check Username in UserAbility again

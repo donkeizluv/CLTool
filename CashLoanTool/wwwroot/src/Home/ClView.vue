@@ -1,10 +1,12 @@
 <template id="cl-view">
     <div>
         <input-modal v-bind:cities="Cities"
-                       v-if="IsShowingInputInfo"
-                       v-on:close="IsShowingInputInfo = false"
-                    v-on:submit="SubmitRequest">
+                     v-if="IsShowingInputInfo"
+                     v-on:close="IsShowingInputInfo = false"
+                     v-on:submit="SubmitRequest">
         </input-modal>
+        <down-popup v-show="IsSchedulerDown">
+        </down-popup>
         <div>
             <div class="well padding-sm">
                 <div v-bind:class="StatusTextClass">
@@ -15,21 +17,21 @@
                 <div class="pull-left"><h5>Nhóm: <b>{{Division}}</b></h5></div>
                 <div class="form-inline">
                     <label class="control-label" for="requestField">Số HĐ:</label>
-                    <input v-bind:disabled="Loading" name="requestField" 
-                           v-model="ContractId" v-on:keyup="DisallowSend" 
-                           v-on:keyup.enter="CheckContractClicked" 
+                    <input v-bind:disabled="Loading" name="requestField"
+                           v-model="ContractId" v-on:keyup="DisallowSend"
+                           v-on:keyup.enter="CheckContractClicked"
                            type="text" class="form-control" />
-                    <button v-bind:disabled="Loading" v-on:click="CheckContractClicked" 
+                    <button v-bind:disabled="Loading" v-on:click="CheckContractClicked"
                             type="button" class="btn btn-primary">
-                        Kiểm tra 
+                        Kiểm tra
                         <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
                     </button>
-                    <button v-bind:disabled="!AllowSend || Loading" 
-                            type="button" 
-                            v-on:click="ShowInputModal" 
+                    <button v-bind:disabled="!AllowSend || Loading"
+                            type="button"
+                            v-on:click="ShowInputModal"
                             v-bind:class="{'btn': !AllowSend || Loading, 'btn btn-success': AllowSend && !Loading}">
                         Gửi <span v-bind:disabled="!AllowSend || Loading" class="glyphicon glyphicon-send" aria-hidden="true">
-                            </span>
+                        </span>
                     </button>
                 </div>
             </div>
@@ -82,7 +84,7 @@
                 </tbody>
             </table>
         </div>
-        
+
         <div class="row">
             <div class="center-block">
                 <page-nav :page-count="TotalPages"
@@ -107,13 +109,15 @@
     import common from '../Common'
     import API from '../Home/API'
     import InputModal from './InputModal.vue'
+    import DownPopup from './DownPopup.vue'
 
     export default {
         name: 'CLView',
         template: '#cl-view',
         components: {
             'page-nav': require('vuejs-paginate'),
-            'input-modal': InputModal
+            'input-modal': InputModal,
+            'down-popup': DownPopup
         },
         mounted: function () {
             this.Init();
@@ -138,6 +142,7 @@
                 //listing, nav
 
                 IsShowingInputInfo: false,
+                IsSchedulerDown: false,
                 PrintingId: '',
 
                 //RequestListingModel: [], //no really need to store this
@@ -179,8 +184,8 @@
                 var injectedModel = window.model;
                 var cities = window.Cities;
                 var ability = window.Ability;
-
-                if (!injectedModel || !cities || !ability) {
+                var division = window.Division;
+                if (!injectedModel || !cities || !ability || !division) {
                     this.$data.StatusMessage = "Error loading app. Contact IT Dept.";
                     this.$data.StatusTextClass = "status-danger";
                     this.$data.Loading = true;
@@ -192,9 +197,10 @@
                 this.$data.OrderAsc = injectedModel.OrderAsc;
                 //this.$data.RequestListingModel = injectedModel;
                 this.$data.Requests = injectedModel.Requests;
-                this.$data.Division = injectedModel.Division;
+                this.$data.Division = division;
                 this.$data.Cities = cities;
                 this.$data.Ability = ability;
+                this.$data.IsSchedulerDown = injectedModel.IsSchedulerDown;
                 this.UpdatePagination(injectedModel.TotalPages, injectedModel.TotalRows);
 
             },
@@ -214,6 +220,7 @@
                         //that.$data.RequestListingModel = response.data;
                         that.$data.Requests = response.data.Requests;
                         that.UpdatePagination(response.data.TotalPages, response.data.TotalRows);
+                        that.$data.IsSchedulerDown = response.data.IsSchedulerDown;
                         that.$data.Loading = false;
                     })
                     .catch(function (error) {

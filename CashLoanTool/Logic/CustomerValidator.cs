@@ -6,7 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace CashLoanTool.BussinessRules
+namespace CashLoanTool.Logic
 {
     public static class CustomerValidator
     {

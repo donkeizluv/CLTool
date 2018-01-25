@@ -47,7 +47,9 @@ namespace CashLoanTool.Jobs
                 issuePlace = customerInfo.Issuer,
                 issueDate = customerInfo.IssueDate.ToString(DOBDateFormat),
                 phone = customerInfo.Phone,
-                loanNo = rq.LoanNo
+                loanNo = rq.LoanNo,
+                branch = rq.UsernameNavigation.DivisionNameNavigation.BranchId.ToString(),
+                amount = customerInfo.LoanAmount.ToString()
             };
             hdssRq.signature = CreateSignature(hdssRq); ;
             //logger.Info(hdssRq.requestId);

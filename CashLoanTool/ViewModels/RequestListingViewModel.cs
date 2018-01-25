@@ -1,10 +1,12 @@
 ﻿using System.Collections.Generic;
 using CashLoanTool.EntityModels;
+using CashLoanTool.Helper;
+
 namespace CashLoanTool.ViewModels
 {
     public class RequestListingViewModel
     {
-        public string Division { get; set; }
+        //public string Division { get; set; }
 
         public List<Request> Requests { get; set; }
         public static int ItemPerPage { get; set; } = 10;
@@ -14,6 +16,14 @@ namespace CashLoanTool.ViewModels
         public string OrderBy { get; set; }
         public bool OrderAsc { get; set; }
         public int OnPage { get; set; }
+
+        public bool IsSchedulerDown
+        {
+            get
+            {
+                return EnviromentHelper.IsSchedulerDown;
+            }
+        }
 
         public RequestListingViewModel()
         {

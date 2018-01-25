@@ -6,6 +6,8 @@ namespace CashLoanTool.Helper
 {
     public static class EnviromentHelper
     {
+        //Scheduler exception flag
+        public static bool IsSchedulerDown = false;
         public static string EnvStr = string.Empty;
         public static string ConnectionStringKey = "DbConnectionString";
         public static string ApiUrlKey = "HDB_API";

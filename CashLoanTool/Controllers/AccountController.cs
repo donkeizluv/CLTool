@@ -83,6 +83,8 @@ namespace CashLoanTool.Helper
         {
             using (_context)
             {
+                //remove this incase of recording user last login
+                _context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
                 //clear whatever stored session
                 ClearSession();
                 var loginLevel = GetLoginLevel(userName, pwd, _context, out var user);

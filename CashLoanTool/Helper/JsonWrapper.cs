@@ -16,6 +16,7 @@ namespace CashLoanTool.Helper
         public string Username { get; set; }
         public string Division { get; set; }
         public bool ExportRequests { get; set; }
+        public bool SeeAllRequests { get; set; }
 
         public bool IsValid
         {

@@ -14,6 +14,7 @@
                         <td><h5>Username</h5></td>
                         <td><h5>Division</h5></td>
                         <td><h5>Export</h5></td>
+                        <td><h5>See all</h5></td>
                         <td><h5>Type</h5></td>
                         <td><h5>Active</h5></td>
                         <td><h5>C.R.U.D</h5></td>
@@ -24,11 +25,13 @@
                         <td class="table-td" nowrap><span class="table-cell-content">{{user.Username}}</span></td>
                         <td class="table-td" nowrap>
                             <span class="table-cell-content">
-                                <select class="form-control control-sm" 
+                                <select class="form-control control-sm"
                                         v-on:change="OnValueChanged(user.Username, 'DivisionName', $event.target.value)">
-                                    <option v-for="(d, index) in Divisions" 
-                                            v-bind:value="d" 
-                                            v-bind:selected="user.DivisionName==d">{{d}}</option>
+                                    <option v-for="(d, index) in Divisions"
+                                            v-bind:value="d"
+                                            v-bind:selected="user.DivisionName==d">
+                                        {{d}}
+                                    </option>
                                 </select>
                             </span>
                         </td>
@@ -37,6 +40,13 @@
                                 <input type="checkbox" class="no-margin"
                                        v-bind:checked="user.AllowExport"
                                        v-on:click="OnValueChanged(user.Username, 'AllowExport', $event.target.checked)">
+                            </div>
+                        </td>
+                        <td>
+                            <div class="checkbox">
+                                <input type="checkbox" class="no-margin"
+                                       v-bind:checked="user.CanSeeAllRequests"
+                                       v-on:click="OnValueChanged(user.Username, 'CanSeeAllRequests', $event.target.checked)">
                             </div>
                         </td>
                         <td class="table-td" nowrap><span class="table-cell-content">{{user.Type}}</span></td>
@@ -54,8 +64,8 @@
                     </tr>
                     <tr>
                         <td>
-                            <input name="newUsername" v-model="NewUsername" 
-                                   v-on:keyup.enter="AddNewUser" type="text" 
+                            <input name="newUsername" v-model="NewUsername"
+                                   v-on:keyup.enter="AddNewUser" type="text"
                                    class="form-control control-sm" />
                         </td>
                         <td>
@@ -69,6 +79,11 @@
                             </div>
                         </td>
                         <td>
+                            <div class="checkbox">
+                                <label><input type="checkbox" v-model="NewUserSeeAllRequests">Can see all?</label>
+                            </div>
+                        </td>
+                        <td>
                             <select class="form-control control-sm" disabled="disabled">
                                 <option>User</option>
                             </select>
@@ -79,8 +94,8 @@
                             </div>
                         </td>
                         <td>
-                            <button v-on:click="AddNewUser" 
-                                    v-bind:disabled="DisableSubmit" 
+                            <button v-on:click="AddNewUser"
+                                    v-bind:disabled="DisableSubmit"
                                     type="button"
                                     v-bind:class="{'btn': DisableSubmit, 'btn btn-primary': !DisableSubmit}">
                                 <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
@@ -131,6 +146,7 @@
                 NewUsername: '',
                 NewUserDivision: '',
                 NewUserAllowExport: false,
+                NewUserSeeAllRequests: false,
 
                 Divisions: [],
                 //UsersModel: [],
@@ -227,7 +243,8 @@
                 axios.post(url, {
                     Username: userName,
                     Division: that.$data.Users[userIndex].DivisionName,
-                    ExportRequests: that.$data.Users[userIndex].AllowExport
+                    ExportRequests: that.$data.Users[userIndex].AllowExport,
+                    SeeAllRequests: that.$data.Users[userIndex].CanSeeAllRequests
                 })
                 .then(function (response) {
                     if (response.headers.login) {
@@ -275,7 +292,8 @@
                 axios.post(url, {
                     Username: that.$data.NewUsername,
                     Division: that.$data.NewUserDivision,
-                    ExportRequests: that.$data.NewUserAllowExport
+                    ExportRequests: that.$data.NewUserAllowExport,
+                    SeeAllRequests: that.$data.NewUserSeeAllRequests
                 })
                 .then(function (response) {
                     if (response.headers.login) {

@@ -9,5 +9,6 @@ namespace CashLoanTool.Const
     public static class AbilityNames
     {
         public static readonly string ExportRequests = "ExportRequests";
+        public static readonly string SeeAllRequests = "SeeAllRequests";
     }
 }

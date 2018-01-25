@@ -6,10 +6,11 @@
 }
 
 @*inject stuff...*@
-<script id="inject">    
+<script id="inject">
     window.model = @Json.Serialize(Model);
     window.Cities = @Json.Serialize(ViewData[nameof(CityList.Cities)]);
     window.Ability = @Json.Serialize(ViewData[nameof(Ability)]);
+    window.Division = @Json.Serialize(ViewData[nameof(Division)]);
     //hide injection
     var element = document.getElementById("inject");
     element.parentNode.removeChild(element);

@@ -31,6 +31,7 @@ namespace CashLoanTool.Helper
         {
             using (_context)
             {
+                _context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
                 using (var command = _context.Database.GetDbConnection().CreateCommand())
                 {
                     command.CommandText = "SELECT * FROM dbo.ExportRequests()";

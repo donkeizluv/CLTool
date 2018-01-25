@@ -44,6 +44,7 @@ namespace CashLoanTool.Helper
             if (!Decode64(id, out var contractId)) return BadRequest();
             using (_context)
             {
+                _context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
                 //check valid
                 //var currentUser = HttpContext.User.FindFirst(ClaimTypes.Name).Value;
                 var request = await _context.Request.Where(r => r.RequestId == contractId).Include(r => r.CustomerInfo).Include(r => r.Response).FirstOrDefaultAsync();

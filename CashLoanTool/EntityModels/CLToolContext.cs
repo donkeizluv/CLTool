@@ -16,15 +16,6 @@ namespace CashLoanTool.EntityModels
         public virtual DbSet<User> User { get; set; }
         public virtual DbSet<UserAbility> UserAbility { get; set; }
 
-//        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-//        {
-//            if (!optionsBuilder.IsConfigured)
-//            {
-//#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-//                optionsBuilder.UseSqlServer(@"Server=(Localdb)\local;Database=CLTool;Trusted_Connection=True;");
-//            }
-//        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Ability>(entity =>
@@ -58,7 +49,6 @@ namespace CashLoanTool.EntityModels
 
                 entity.Property(e => e.BranchName)
                     .IsRequired()
-                    .HasColumnName("BranchName")
                     .HasMaxLength(50);
             });
 
@@ -95,6 +85,8 @@ namespace CashLoanTool.EntityModels
                 entity.Property(e => e.IssueDate).HasColumnType("date");
 
                 entity.Property(e => e.Issuer).HasMaxLength(50);
+
+                entity.Property(e => e.LoanAmount).HasColumnType("numeric(12, 0)");
 
                 entity.Property(e => e.MartialStatus).HasMaxLength(1);
 
@@ -203,7 +195,9 @@ namespace CashLoanTool.EntityModels
                     .IsRequired()
                     .HasMaxLength(50);
 
-                entity.Property(e => e.DivisionName).HasMaxLength(50);
+                entity.Property(e => e.DivisionName)
+                    .IsRequired()
+                    .HasMaxLength(50);
 
                 entity.Property(e => e.Type)
                     .IsRequired()
@@ -213,6 +207,7 @@ namespace CashLoanTool.EntityModels
                 entity.HasOne(d => d.DivisionNameNavigation)
                     .WithMany(p => p.User)
                     .HasForeignKey(d => d.DivisionName)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_User_Division");
 
                 entity.HasOne(d => d.TypeNavigation)

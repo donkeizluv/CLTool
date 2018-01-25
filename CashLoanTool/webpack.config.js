@@ -1,5 +1,7 @@
 ﻿'use strict';
 const webpack = require('webpack');
+const CleanWebpackPlugin = require('clean-webpack-plugin')
+
 module.exports = {
     entry: {
         Shared: './wwwroot/src/shared.js',
@@ -34,6 +36,7 @@ module.exports = {
             output: {
                 comments: false //No comments
             }
-        })
+        }),
+        new CleanWebpackPlugin(['wwwroot/dist'], [])
     ]
 };

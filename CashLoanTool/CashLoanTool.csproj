@@ -34,6 +34,7 @@
     <Content Remove="wwwroot\src\Home\API.js" />
     <Content Remove="wwwroot\src\Home\app.js" />
     <Content Remove="wwwroot\src\Home\ClView.vue" />
+    <Content Remove="wwwroot\src\Home\DownPopup.vue" />
     <Content Remove="wwwroot\src\Home\InputModal.vue" />
     <Content Remove="wwwroot\src\shared.js" />
   </ItemGroup>
@@ -91,6 +92,7 @@
     <None Include="wwwroot\src\Home\app.js" />
     <None Include="wwwroot\src\Home\CLView.vue" />
     <None Include="wwwroot\src\Home\InputModal.vue" />
+    <None Include="wwwroot\src\Home\DownPopup.vue" />
     <None Include="wwwroot\src\shared.js" />
   </ItemGroup>
 
@@ -121,6 +123,7 @@
 
   <ItemGroup>
     <Folder Include="Properties\PublishProfiles\" />
+    <Folder Include="wwwroot\dist\" />
   </ItemGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">

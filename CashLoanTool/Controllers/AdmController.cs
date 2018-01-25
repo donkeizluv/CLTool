@@ -33,7 +33,7 @@ namespace CashLoanTool.Helper
         {
             using (_context)
             {
-                var model = await GetModel(_context, 1);
+                var model = await CreateModel(_context, 1);
                 return View(model);
             }
         }
@@ -64,7 +64,11 @@ namespace CashLoanTool.Helper
                 };
                 if(post.ExportRequests)
                 {
-                    user.AddAbilityIfNotHas(_context, AbilityNames.ExportRequests);
+                    user.TryAddAbility(_context, AbilityNames.ExportRequests);
+                }
+                if(post.SeeAllRequests)
+                {
+                    user.TryAddAbility(_context, AbilityNames.SeeAllRequests);
                 }
                 
                 _context.User.Add(user);
@@ -93,11 +97,20 @@ namespace CashLoanTool.Helper
                 //Update ExportRq ability
                 if (post.ExportRequests)
                 {
-                    crudUser.AddAbilityIfNotHas(_context, AbilityNames.ExportRequests);
+                    crudUser.TryAddAbility(_context, AbilityNames.ExportRequests);
                 }
                 else
                 {
-                    crudUser.RemoveAblityIfHas(_context, AbilityNames.ExportRequests);
+                    crudUser.TryRemoveAbility(_context, AbilityNames.ExportRequests);
+                }
+                //update see all rqs
+                if (post.SeeAllRequests)
+                {
+                    crudUser.TryAddAbility(_context, AbilityNames.SeeAllRequests);
+                }
+                else
+                {
+                    crudUser.TryRemoveAbility(_context, AbilityNames.SeeAllRequests);
                 }
                 await _context.SaveChangesAsync();
             }
@@ -108,10 +121,11 @@ namespace CashLoanTool.Helper
         {
             using (_context)
             {
-                return Ok(await GetModel(_context, page));
+                _context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+                return Ok(await CreateModel(_context, page));
             }
         }
-        private static async Task<AdmViewModel> GetModel(CLToolContext context, int pageNum)
+        private static async Task<AdmViewModel> CreateModel(CLToolContext context, int pageNum)
         {
             int getPage = pageNum < 1 ? 1 : pageNum;
             int excludedRows = (getPage - 1) * RequestListingViewModel.ItemPerPage;

@@ -72,7 +72,6 @@ namespace CashLoanTool.Indus
                 return StringCleaner.StripAccentsNSpecialChars(customer);
             }
         }
-        //TODO: fix this mess
         private async Task<CustomerInfo> GetCustomer(IDbConnection connection, CommandDefinition cmd)
         {
             //Map to object

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using CashLoanTool.EntityModels;
+
 namespace CashLoanTool.ViewModels
 {
     public class AdmViewModel
