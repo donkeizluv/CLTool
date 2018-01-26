@@ -25,12 +25,6 @@
     }
 </script>
 <style scoped>
-    /*vue modal pop up*/
-    .feelback-icon {
-        padding-left: 0;
-        right: 10px;
-    }
-
     .modal-mask {
         position: fixed;
         z-index: 9998;
@@ -41,12 +35,6 @@
         background-color: rgba(0, 0, 0, .7);
         display: table;
         transition: opacity .3s ease;
-    }
-
-    .validate-error {
-        font-size: smaller;
-        font-weight: 700;
-        float: left;
     }
 
     .modal-wrapper {
@@ -67,8 +55,5 @@
     }
     .red-text{
        color: red;
-    }
-    .modal-header h4 {
-        margin-top: 5px;
     }
 </style>

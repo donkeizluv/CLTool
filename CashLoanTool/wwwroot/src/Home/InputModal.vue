@@ -3,7 +3,7 @@
         <div class="modal-mask">
             <div class="modal-wrapper">
                 <div class="modal-container-sm">
-                    <div>
+                    <div class="modal-header no-padding">
                         <h4>Bổ sung thông tin: </h4>
                     </div>
                     <div class="modal-body">
@@ -68,11 +68,6 @@
 </script>
 <style scoped>
     /*vue modal pop up*/
-    .feelback-icon {
-        padding-left: 0;
-        right: 10px;
-    }
-
     .modal-mask {
         position: fixed;
         z-index: 9998;
@@ -85,34 +80,25 @@
         transition: opacity .3s ease;
     }
 
-    .validate-error {
-        font-size: smaller;
-        font-weight: 700;
-        float: left;
-    }
-
     .modal-wrapper {
         display: table-cell;
         vertical-align: middle;
     }
-
     .modal-container-sm {
-        width: 400px;
-        height: 310px;
+        width: 350px;
+        height: 325px;
         margin: 0px auto;
         padding: 15px;
         background-color: #fff;
-        border-radius: 2px;
+        border-radius: 5px;
         box-shadow: 0 2px 8px rgba(0, 0, 0, .33);
         transition: all .2s ease;
         font-family: Helvetica, Arial, sans-serif;
     }
-
     .modal-default-button {
         float: right;
     }
-
-    .modal-header h4 {
-        margin-top: 5px;
+    .no-padding{
+        padding: 0px;
     }
 </style>

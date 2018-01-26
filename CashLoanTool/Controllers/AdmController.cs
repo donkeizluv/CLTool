@@ -33,7 +33,7 @@ namespace CashLoanTool.Helper
         {
             using (_context)
             {
-                var model = await CreateModel(_context, 1);
+                var model = await ModelFactory.CreateAdmViewModel(_context, 1);
                 return View(model);
             }
         }
@@ -122,24 +122,8 @@ namespace CashLoanTool.Helper
             using (_context)
             {
                 _context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
-                return Ok(await CreateModel(_context, page));
+                return Ok(await ModelFactory.CreateAdmViewModel(_context, page));
             }
-        }
-        private static async Task<AdmViewModel> CreateModel(CLToolContext context, int pageNum)
-        {
-            int getPage = pageNum < 1 ? 1 : pageNum;
-            int excludedRows = (getPage - 1) * RequestListingViewModel.ItemPerPage;
-            var query = context.User.Include(u => u.UserAbility);
-            var model = new AdmViewModel
-            {
-                Users = await query.OrderBy(u => u.Username)
-                             .Skip(excludedRows)
-                             .Take(RequestListingViewModel.ItemPerPage).ToListAsync(),
-                OnPage = pageNum,
-                Divisions = await context.Division.Select(a => a.DivisionName).ToListAsync()
-            };
-            model.UpdatePagination(await context.User.CountAsync());
-            return model;
         }
     }
 }

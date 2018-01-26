@@ -9,6 +9,22 @@ namespace CashLoanTool.ViewModels
 {
     public static class ModelFactory
     {
+        public static async Task<AdmViewModel> CreateAdmViewModel(CLToolContext context, int pageNum)
+        {
+            int getPage = pageNum < 1 ? 1 : pageNum;
+            int excludedRows = (getPage - 1) * RequestListingViewModel.ItemPerPage;
+            var query = context.User.Include(u => u.UserAbility);
+            var model = new AdmViewModel
+            {
+                Users = await query.OrderBy(u => u.Username)
+                             .Skip(excludedRows)
+                             .Take(RequestListingViewModel.ItemPerPage).ToListAsync(),
+                OnPage = pageNum,
+                Divisions = await context.Division.Select(a => a.DivisionName).ToListAsync()
+            };
+            model.UpdatePagination(await context.User.CountAsync());
+            return model;
+        }
         public static async Task<RequestListingViewModel> CreateRequestListingModel(IQueryable<Request> query, int pageNum, string orderBy, bool asc)
         {
             int getPage = pageNum < 1 ? 1 : pageNum;

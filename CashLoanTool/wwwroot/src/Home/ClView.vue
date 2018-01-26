@@ -1,26 +1,38 @@
 <template id="cl-view">
     <div>
         <input-modal v-bind:cities="Cities"
-                     v-if="IsShowingInputInfo"
-                     v-on:close="IsShowingInputInfo = false"
-                     v-on:submit="SubmitRequest">
+                        v-if="IsShowingInputInfo"
+                        v-on:close="IsShowingInputInfo = false"
+                        v-on:submit="SubmitRequest">
         </input-modal>
         <down-popup v-show="IsSchedulerDown">
         </down-popup>
-        <div>
-            <div class="well padding-sm">
-                <div v-bind:class="StatusTextClass">
-                    <h4 class="status-bar">{{StatusMessage}}</h4>
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="well padding-sm">
+                    <div v-bind:class="StatusTextClass">
+                        <h4 class="status-bar">{{StatusMessage}}</h4>
+                    </div>
                 </div>
             </div>
-            <div>
-                <div class="pull-left"><h5>Nhóm: <b>{{Division}}</b></h5></div>
+        </div>
+        <div class="row">
+            <div class="col-md-3 col-md-offset-0">
+                <h5>
+                    Nhóm:
+                    <b>{{Division}}</b>
+                    <span v-show="CanSeeAll">- All Requests</span>
+                </h5>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-6 col-lg-offset-3">
                 <div class="form-inline">
                     <label class="control-label" for="requestField">Số HĐ:</label>
                     <input v-bind:disabled="Loading" name="requestField"
-                           v-model="ContractId" v-on:keyup="DisallowSend"
-                           v-on:keyup.enter="CheckContractClicked"
-                           type="text" class="form-control" />
+                            v-model="ContractId" v-on:keyup="DisallowSend"
+                            v-on:keyup.enter="CheckContractClicked"
+                            type="text" class="form-control" />
                     <button v-bind:disabled="Loading" v-on:click="CheckContractClicked"
                             type="button" class="btn btn-primary">
                         Kiểm tra
@@ -37,59 +49,59 @@
             </div>
         </div>
         <!--scrollable in small width-->
-        <div style="overflow: auto">
-            <table class="table table-hover">
-                <thead>
-                    <tr>
-                        <td>
-                            <div class="center-block">
-                                <button v-bind:disabled="Loading" class="btn btn-primary" v-on:click="RefreshGrid">Refresh <i class="fa fa-refresh" aria-hidden="true"></i></button>
-                            </div>
-                        </td>
-                        <td colspan="999">
-
-                            <div class="pull-right">
-                                <button class="btn btn-primary" v-bind:disabled="!CanExport" v-on:click="ExportRequests">Export <i class="fa fa-download" aria-hidden="true"></i></button>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td><button class="btn btn-link" v-on:click="OrderByClicked('RequestId')"><span v-html="DisplayOrderButtonStates('RequestId')"></span>Request Số</button></td>
-                        <td><h5>Số Tk.</h5></td>
-                        <td><h5>Tên</h5></td>
-                        <td><h5>CMND</h5></td>
-                        <td><h5>SĐT</h5></td>
-                        <td><h5>Số HĐ</h5></td>
-                        <td><button class="btn btn-link" v-on:click="OrderByClicked('RequestCreateTime')"><span v-html="DisplayOrderButtonStates('RequestCreateTime')"></span>Ngày tạo</button></td>
-                        <td><h5>Người tạo</h5></td>
-                        <td><h5>In</h5></td>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="request in Requests">
-                        <td class="table-td" nowrap><span class="table-cell-content">{{request.RequestId}}</span></td>
-                        <td class="table-td" nowrap><span class="table-cell-content">{{request.AcctNo}}</span></td>
-                        <td class="table-td" nowrap><span class="table-cell-content">{{request.IdentityCardName}}</span></td>
-                        <td class="table-td" nowrap><span class="table-cell-content">{{request.IdentityCard}}</span></td>
-                        <td class="table-td" nowrap><span class="table-cell-content">{{request.Phone}}</span></td>
-                        <td class="table-td" nowrap><span class="table-cell-content">{{request.LoanNo}}</span></td>
-                        <td class="table-td" nowrap><span class="table-cell-content">{{request.RequestCreateTimeString}}</span></td>
-                        <td class="table-td" nowrap><span class="table-cell-content">{{request.Username}}</span></td>
-                        <td class="table-td" nowrap>
-                            <button v-show="request.HasValidAcctNo" v-on:click="OpenContractPrinting(request.RequestId)" class="btn btn-link">
-                                <span class="fa fa-print onepointfive-em"></span>
-                            </button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
         <div class="row">
-            <div class="center-block">
+            <div class="col-lg-12" style="overflow: auto">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <td>
+                                <div class="center-block">
+                                    <button v-bind:disabled="Loading" class="btn btn-primary" v-on:click="RefreshGrid">Refresh <i class="fa fa-refresh" aria-hidden="true"></i></button>
+                                </div>
+                            </td>
+                            <td colspan="999">
+                                <div class="pull-right">
+                                    <button class="btn btn-primary" v-bind:disabled="!CanExport" v-on:click="ExportRequests">Export <i class="fa fa-download" aria-hidden="true"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><button class="btn btn-link" v-on:click="OrderByClicked('RequestId')"><span v-html="DisplayOrderButtonStates('RequestId')"></span>Request Số</button></td>
+                            <td><h5>Số Tk.</h5></td>
+                            <td><h5>Tên</h5></td>
+                            <td><h5>CMND</h5></td>
+                            <td><h5>SĐT</h5></td>
+                            <td><h5>Số HĐ</h5></td>
+                            <td><button class="btn btn-link" v-on:click="OrderByClicked('RequestCreateTime')"><span v-html="DisplayOrderButtonStates('RequestCreateTime')"></span>Ngày tạo</button></td>
+                            <td><h5>Người tạo</h5></td>
+                            <td><h5>In</h5></td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="request in Requests">
+                            <td class="table-td" nowrap><span class="table-cell-content">{{request.RequestId}}</span></td>
+                            <td class="table-td" nowrap><span class="table-cell-content">{{request.AcctNo}}</span></td>
+                            <td class="table-td" nowrap><span class="table-cell-content">{{request.IdentityCardName}}</span></td>
+                            <td class="table-td" nowrap><span class="table-cell-content">{{request.IdentityCard}}</span></td>
+                            <td class="table-td" nowrap><span class="table-cell-content">{{request.Phone}}</span></td>
+                            <td class="table-td" nowrap><span class="table-cell-content">{{request.LoanNo}}</span></td>
+                            <td class="table-td" nowrap><span class="table-cell-content">{{request.RequestCreateTimeString}}</span></td>
+                            <td class="table-td" nowrap><span class="table-cell-content">{{request.Username}}</span></td>
+                            <td class="table-td" nowrap>
+                                <button v-show="request.HasValidAcctNo" v-on:click="OpenContractPrinting(request.RequestId)" class="btn btn-link">
+                                    <span class="fa fa-print onepointfive-em"></span>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-6 col-lg-offset-3">
                 <page-nav :page-count="TotalPages"
                           :click-handler="PageNavClicked"
-                          :page-range="3"
+                          :page-range="2"
                           :prev-text="'Trước'"
                           :force-page="OnPage - 1"
                           :next-text="'Sau'"
@@ -100,7 +112,7 @@
             </div>
         </div>
         <div class="row">
-            <div><span class="center-block">Tổng số: {{TotalRows}}</span></div>
+            <div class="col-sm-4 col-sm-offset-4">Tổng số: {{TotalRows}}</div>
         </div>
     </div>
 </template>
@@ -167,13 +179,10 @@
                 return API.CurrentHost + api;
             },
             CanExport: function () {
-                var i = this.$data.Ability.length;
-                while (i--) {
-                    if (this.$data.Ability[i] === 'ExportRequests') {
-                        return true;
-                    }
-                }
-                return false;
+                return common.arrayContains(this.$data.Ability, "ExportRequests");
+            },
+            CanSeeAll: function () {
+                return common.arrayContains(this.$data.Ability, "SeeAllRequests");
             }
         },
         methods: {
@@ -417,23 +426,21 @@
         padding: 10px;
     }
     .table-td{
-        padding:0px;
-        line-height: 3;
+        padding: 0px;
+        line-height: 2.5;
     }
     .table-cell-content {
         font-size: small;
         font-weight: 500;
     }
     .status-bar {
-        height: 20px;
+        height: 25px;
         margin: 0px;
         padding: 0px;
     }
-
     .onepointfive-em {
         font-size: 1.5em;
     }
-
     .status-danger * {
         color: lightcoral;
     }

@@ -23,6 +23,15 @@
             '504': '504 Hết thời gian chờ'
         }
     },
+    arrayContains: function(arr, str) {
+        var i = arr.length;
+        while(i--) {
+            if (arr[i] === str) {
+                return true;
+            }
+        }
+        return false;
+    },
     errorCodeTranslater: function(code) {
         return this.errorMessages[this.langCode][code];
     }
